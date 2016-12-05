@@ -1,0 +1,49 @@
+---
+layout: post
+title: "161205 - Continue with deploying on EB"
+date: 2016-12-05 08:56:12
+categories: blog, aws
+---
+
+So here I am still not being able to deploy CPP to EB.
+
+These are the things I should pay special consideration later if I want to redeploy:
+
+* Environment variables
+* All of the settings (the last time, production settings really complicate on what things are important, waht things are not, what things can potentially break the system)
+* Database
+
+This time I should try to basically replicate my local environment on to EB. Just use local settings, should not care about production settings for now.
+
+Remember to disable SECURE_SSL_REDIRECT (set to False) if you don't have Certificate or if you are in your development environment
+
+So actually it worked. The reason I could not access the site last night is because of automatic SSL redirection. Even after I disabled SSL redirection, the browser (possibly because of header cache) stil automatically forwards my http request as https to the server, which creates an infinite loop. That's why the site takes forever to load. The site works fine if I connect in Incognito mode and after I flush the cache.
+
+One more thing to note, EB actually uses the latest local git commit to populate the server. As a result, if you make some changes in your local repository and forget to commit those changes, they will not be uploaded and reflected on server. Also keeps an eye on the .gitignore file. There might be some files that make the site works on your local server, but because they are in .gitignore, they will not be uploaded to AWS EB.
+
+Haven't yet call collectstatic, but maybe not now, it doesn't really matter as the static files are loaded in local setup.
+
+Several ways for improvement:
+
+* Use S3 to deliver static files instead of server
+* Create a superuser and an admin interface
+* cd to the app directory in ec2's .bash_profile, also activate the virtual environment
+    - `cd /opt/python/current/app`
+    - `source /opt/python/run/venv/bin/activate`
+    - `source /opt/python/current/env`ls
+
+Wow, so it works in the end. Now to summarize why does it take me 3 days to make the site up:
+
+* Environment variables. Most of the deployments failed because of unsetted environment variables
+* Differences in MacOS and Linux environment. MacOS (or the very useful Homebrew & Anaconda) natively supports some libraries that Linux does not. As a result, those libraries are not included when you export requirements.txt. As a result, deployment with that requirements.txt file on Linux will fail sometimes. Also, I am new to Linux and its various kinds of distribution, so it takes some time to install the appropriate libraries (whether in Fedora, Ubuntu, CentOS, or Amazon Linux...)
+* Security settings. The reason my RDS does not work is because the default security settings do not allow accessing the database over Internet TCP. After changing the settings to include incoming access from my IP address, I was able to create database and connect it to my application. Sounds silly, but it does take some basic knowledge on how these components are integrated to each other.
+
+Many of the above problems come from:
+
+* Sloppiness and carelessness: every environment variable counts even if I think otherwise. One reason is because I build on top of other people's codes, sometimes there are environment variables that seem not really relate to my targeted purpose, but they serve those codes. I don't write those codes, so I miss out on some edge cases where those seemingly unrelated variables support their code.
+* Unwillingness to look at the logs. This is indefensible. Sometimes I just got really mad at the system that I refuesed to look at what it said
+
+Things to remember:
+
+* In programming, everything must be perfect, a single error can destroy your application, many small errors can significantly complicate the matter and wreck havoc to your program in ways that are very confusing (e.g. no error stack trace, just doesn't work...)
+* Take note of whatever you make. Commit a lot. It will save you whenever strange behavior arises (which sadly more often than expected)

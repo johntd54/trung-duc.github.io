@@ -1,0 +1,113 @@
+---
+layout: post
+title: "161204 - Using AWS RDS"
+date: 2016-12-04 11:49:00
+categories: aws
+---
+
+# Guiding Questions
+
+1. Before creating a database, what criteria to consider?
+2. What are the authentication and authorization steps to connect to database?
+3. In what way, and how, to connect to database (both manually and through code)?
+4. Can source code in other part of AWS services access to database? Can source code in personal computer access to AWS RDS?
+5. If source code from personal computer or other part of AWS can access to database, what is the security measure?
+6. If data begins to exceed storage, how to scale with AWS RDS?
+7. Is there any backup support mechanism from AWS?
+
+
+# Why RDS
+
+* Not bundled CPU, memory... so it would be easier to scale
+* Additional database security and management service
+
+# Components
+
+* DB instances
+* Region and availability zones
+* Security groups
+* DB parameter groups
+* DB option groups
+
+#### DB instances
+
+* Is an isolated database *environment* in the cloud
+* An instance can contain multiple user-created databases
+* Each DB instance runs a DB engine (currently MySQL, Maria, Postgre, Oracle & Microsoft SQL Server)
+* The computation and memory capacity of DB instance is determined by its DB instance class that you can select what you deem suitable (e.g. db.m4.large, db.t2.micro...)
+
+So a DB instance can be considered as a more low-level, hardware-is component, which basically concerns with storage size, storage type (HDD or SSD), computation performance, and DB engine.
+
+#### Regions and availability zones
+
+* Each data center location is called a region (e.g. US North, Asia,...). Each region contains multiple distinc locations called availibility zones (AZ). Each AZ is engineered to be isolated from failures in another AZs.
+* DB instance can be run in several availability zones if you want. In this case, a replica of your DB instance will e created in a different AZ.
+
+So basically you have an option to make your database more robust to facility failure. Instead of hosting a database in DB instances of a single facility, AWS will replicate your database and run it on other DB instances of other facilities.
+
+#### Security groups
+
+* A security group controls access to a DB instance, by controlling access to the IP address ranges or EC2 instances that the DB instance associates with
+* There are these groups:
+    
+    - DB security groups: control access to DB instances outside a VPC
+    - VPC security groups: control access to DB instances inside a VPC (probably applies to you if you are new AWS user). You can use a default VPC security group, or specifically define a new security group for your DB instance
+    - EC2 security groups: control access to EC2 instances in general (DB instances outside of VPC is part of EC2 platform)
+
+#### DB parameter groups
+
+* They are DB configuration values.
+* They can be applied to one or more DB instances of the same instance type
+
+#### DB option groups
+
+* Tools to manage database, organized in groups.
+
+# How to access RDS (RDS interfaces):
+
+* Amazon RDS console: web-based UI
+* Command line interface
+* Programmatic interfaces: access database in programming languages
+
+
+# Steps to create (MySQL)
+
+1. Sign in AWS, create IAM. RDS will need an IAM for authorization
+2. Create a security group for the VPC that will house your DB instance. This security group will dictate how your DB instances will be accessed
+3. Get into [RDS console][rds_console]
+4. Choose the region, choose **Instances*, choose **Launch DB Instance**, select **MySQL DB engine**
+5. Specify configuration in **[Specify DB Details][mysql_configuration]** and launch
+6. Connect to the database instance with `mysql -h [endpoint] -P [port possibly 3306] -u [username] -p`. Make sure the security group allow your IP address to make incomming access to the DB instance of specified endpoint. You can also connect with [SSH][ssh_connection]
+
+# Answers
+
+1. Before creating a database with RDS, should keep in mind:
+    * Memory and processor requirements to pick the appropriate DB instance type
+    * Whether to have failover support (multi-AZ deployment)
+    * Does your AWS account have policies t hat grant the permissions needed to perform AWS RDS operations
+    * What TCP/IP port will your database be listening on
+    * What region do you want to place your database
+    * Storage requirement (whether you need database that has high capacity at low cost, or IO intensive, or general purpse)
+
+
+2. There are 2 ways to connect to database:
+    * The RDS security group allows incoming access from your IP address
+    * Your AWS account has IAM user, and that user can access RDS
+    * Your personal computer has id and key of that IAM user
+
+
+3. To connect database:
+    * (manual) Use `mysql` or any more relevant database engine interface
+    * (manual) SSH into the database instance (as referred in step 6 above)
+    * (code) In this case you need to supply the code with database connection configurations and use the appropriate database API
+
+4. Can source code in other part of AWS or personal computer access database? **_Yes_**
+5. If the above is true, what is the security measure? **_More specific security group_**. For example, instead of allowing all IP addresses to access the database, only allow a trusted subset of IPs...
+6. How to scale with RDS? **_Since CPU, memory, storage, IOPS are not bundled_**, you can [increase database capacity][rds_scale] by specifying additional resources...
+7. Is there any backup support mechanism from AWS? **_You can configure RDS to [automated snapshot][rds_backup]_**
+
+[rds_console]: https://console.aws.amazon.com/rds/
+[mysql_configuration]: http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html
+[ssh_connection]: http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html
+[rds_scale]: https://aws.amazon.com/rds/faqs/#hardware-scaling
+[rds_backup]: http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html

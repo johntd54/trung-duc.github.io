@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Deploying Django to AWS Elastic Beanstalk</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/web/django-aws.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Deploying Django to AWS Elastic Beanstalk</h1>
+    <p class="post-meta">Dec 3, 2016</p>
+  </header>
+
+  <article class="post-content">
+    <p>Documentation of the steps to deploy Django to EB</p>
+
+<ol>
+  <li>
+    <p>Freeze pip and export environment to requirements.txt, located in the project root folder</p>
+
+    <ul>
+      <li>Remember not to include unnecessary libraries. They might inadvertantly break the installation (e.g psycorg2 w/o postgre will raise error during installation)</li>
+    </ul>
+  </li>
+  <li>
+    <p>Create .ebextensions and include a [whatever].config file:</p>
+
+    <ul>
+      <li>
+        <p>The reference for Python configuration should be <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-specific.html#command-options-python">here</a>.</p>
+      </li>
+      <li>
+        <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">option_settings</span><span class="p">:</span>
+   <span class="n">aws</span><span class="p">:</span><span class="n">elasticbeanstalk</span><span class="p">:</span><span class="n">container</span><span class="p">:</span><span class="n">python</span><span class="p">:</span>
+     <span class="n">WSGIPath</span><span class="p">:</span> <span class="p">[</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">wsgi</span><span class="p">]</span>
+   <span class="n">aws</span><span class="p">:</span><span class="n">elasticbeanstalk</span><span class="p">:</span><span class="n">application</span><span class="p">:</span><span class="n">environment</span><span class="p">:</span>
+     <span class="p">[</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">]</span> <span class="n">of</span> <span class="n">environment</span> <span class="n">variables</span>
+   <span class="n">aws</span><span class="p">:</span><span class="n">elasticbeanstalk</span><span class="p">:</span><span class="n">container</span><span class="p">:</span><span class="n">python</span><span class="p">:</span><span class="n">staticfiles</span><span class="p">:</span>
+     <span class="p">[</span><span class="n">url_path</span><span class="p">:</span> <span class="n">dir_replacement</span><span class="p">]</span></code></pre></div>
+      </li>
+      <li>
+        <p>You can edit the configuration any time using <code>eb config</code>. This command will fetch the configuration from server and populate it to you vim or whatnot for you to edit.</p>
+      </li>
+      <li>The complete environment configuration can be referred <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers.html">here</a></li>
+    </ul>
+  </li>
+  <li>
+    <p><code>eb init</code> to set up eb cli - server interaction. This step just initializes the information, it does not create anything on the server-side. If you need to change your settings later, run <code>eb init -i</code>. The whole idea of this initialization process is to set up your desired server region, ssh key (so that you would be able to access your server using command line).</p>
+  </li>
+  <li>
+    <p>Commit your local repository before the next step (<code>eb create</code>), as well as whenever you make a change in your local repository and want to reflect that change on server using <code>eb deploy</code>. The idea of EB is to upload the latest commit that you make and apply that commit to the source code at the server. For that also reason, pay attention with your .gitignore, as it might contain necessary files to run the server.</p>
+  </li>
+  <li>
+    <p>Run <code>eb create</code> to create the environment You can create the RDS during <code>eb create</code>. All of the options stay <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb3-create.html#eb3-createoptions">here</a>. Sample command:</p>
+
+    <ul>
+      <li>
+        <div class="highlight"><pre><code class="language-bash" data-lang="bash">eb create testenv1 --database.engine mysql --database.username testusername --database.password testpassword --scale 1</code></pre></div>
+      </li>
+      <li>Again, remember to commit local repository before <code>eb create</code> or <code>eb deploy</code>.</li>
+      <li>If you set the database server this way, make sure you log in to that DB server to create a real production DB, either by ssh-ing into server, or directly from your IP address. If the DB server is MySQL, the command looks like: <code>mysql -h [database endpoint] -P [port] -u [username] -p</code>. Note that if you access the DB server directly from your own IP address, you should change that DB server’s security group to allow incoming access from your IP address.</li>
+      <li>
+        <p>One more thing to note, if you are using EB and you choose Linux server. However, if your development environment is MacOS or Windows, then just <code>pip freeze</code> might not accurately reproduce your environment into server. In that case, be prepared to modify configuration file to add any missing dependencies. Example:</p>
+
+        <ul>
+          <li>
+            <div class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="l-Scalar-Plain">packages</span><span class="p-Indicator">:</span>
+  <span class="l-Scalar-Plain">yum</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">libxml2</span><span class="p-Indicator">:</span> <span class="p-Indicator">[]</span>
+    <span class="l-Scalar-Plain">libxml2-devel</span><span class="p-Indicator">:</span> <span class="p-Indicator">[]</span>
+    <span class="l-Scalar-Plain">libxslt</span><span class="p-Indicator">:</span> <span class="p-Indicator">[]</span>
+    <span class="l-Scalar-Plain">libxslt-devel</span><span class="p-Indicator">:</span> <span class="p-Indicator">[]</span></code></pre></div>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>And this is pretty much is. If you have any error, check the log with <code>eb logs</code>. AWS EB also provides some very helpful commands below:</p>
+  </li>
+</ol>
+
+<ul>
+  <li><code>eb printenv</code>: print the server environment variables</li>
+  <li><code>eb console</code>: open the EB console in web browser</li>
+  <li><code>eb open</code>: open your EB-hosted site in web browser</li>
+  <li><code>eb ssh</code>: ssh into your server command line.
+    <ul>
+      <li>Your application is located here: <code>/opt/python/current/app</code></li>
+      <li>If you want to run Python on that server, you should activate the environment by running these 2 commands:
+        <ul>
+          <li><code>$ source /opt/python/run/venv/bin/activate</code></li>
+          <li><code>$ source /opt/python/current/env</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>If you decide <em>not</em> to create the database instance during <code>eb deploy</code>, you can basically follow this instruction (<a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-rds.html">Database RDS</a>):</p>
+
+<ol>
+  <li><a href="http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html">Create</a> Amazon RDS DB instance</li>
+  <li>Log in to that instance, and create a production database</li>
+  <li>Establish database connection in the code (host, port, db name, username, password…)</li>
+  <li>Update the requirements.txt file (typically to include the database programming interface)</li>
+  <li>Deploy with EB</li>
+</ol>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -6,30 +6,387 @@
 </description>
     <link>http://yourdomain.com/</link>
     <atom:link href="http://yourdomain.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 02 Dec 2016 19:17:05 +0700</pubDate>
-    <lastBuildDate>Fri, 02 Dec 2016 19:17:05 +0700</lastBuildDate>
+    <pubDate>Tue, 06 Dec 2016 00:10:54 +0700</pubDate>
+    <lastBuildDate>Tue, 06 Dec 2016 00:10:54 +0700</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
     
       <item>
-        <title>Welcome to Jekyll!</title>
-        <description>&lt;p&gt;You’ll find this post in your &lt;code&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code&gt;jekyll serve --watch&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
+        <title>161205 - Continue with deploying on EB</title>
+        <description>&lt;p&gt;So here I am still not being able to deploy CPP to EB.&lt;/p&gt;
 
-&lt;p&gt;To add new posts, simply add a file in the &lt;code&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
+&lt;p&gt;These are the things I should pay special consideration later if I want to redeploy:&lt;/p&gt;
 
-&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Environment variables&lt;/li&gt;
+  &lt;li&gt;All of the settings (the last time, production settings really complicate on what things are important, waht things are not, what things can potentially break the system)&lt;/li&gt;
+  &lt;li&gt;Database&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;Tom&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints &amp;#39;Hi, Tom&amp;#39; to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This time I should try to basically replicate my local environment on to EB. Just use local settings, should not care about production settings for now.&lt;/p&gt;
 
-&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://github.com/jekyll/jekyll-help&quot;&gt;Jekyll’s dedicated Help repository&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Remember to disable SECURE_SSL_REDIRECT (set to False) if you don’t have Certificate or if you are in your development environment&lt;/p&gt;
+
+&lt;p&gt;So actually it worked. The reason I could not access the site last night is because of automatic SSL redirection. Even after I disabled SSL redirection, the browser (possibly because of header cache) stil automatically forwards my http request as https to the server, which creates an infinite loop. That’s why the site takes forever to load. The site works fine if I connect in Incognito mode and after I flush the cache.&lt;/p&gt;
+
+&lt;p&gt;One more thing to note, EB actually uses the latest local git commit to populate the server. As a result, if you make some changes in your local repository and forget to commit those changes, they will not be uploaded and reflected on server. Also keeps an eye on the .gitignore file. There might be some files that make the site works on your local server, but because they are in .gitignore, they will not be uploaded to AWS EB.&lt;/p&gt;
+
+&lt;p&gt;Haven’t yet call collectstatic, but maybe not now, it doesn’t really matter as the static files are loaded in local setup.&lt;/p&gt;
+
+&lt;p&gt;Several ways for improvement:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Use S3 to deliver static files instead of server&lt;/li&gt;
+  &lt;li&gt;Create a superuser and an admin interface&lt;/li&gt;
+  &lt;li&gt;cd to the app directory in ec2’s .bash_profile, also activate the virtual environment
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code&gt;cd /opt/python/current/app&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;source /opt/python/run/venv/bin/activate&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;source /opt/python/current/env&lt;/code&gt;ls&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Wow, so it works in the end. Now to summarize why does it take me 3 days to make the site up:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Environment variables. Most of the deployments failed because of unsetted environment variables&lt;/li&gt;
+  &lt;li&gt;Differences in MacOS and Linux environment. MacOS (or the very useful Homebrew &amp;amp; Anaconda) natively supports some libraries that Linux does not. As a result, those libraries are not included when you export requirements.txt. As a result, deployment with that requirements.txt file on Linux will fail sometimes. Also, I am new to Linux and its various kinds of distribution, so it takes some time to install the appropriate libraries (whether in Fedora, Ubuntu, CentOS, or Amazon Linux…)&lt;/li&gt;
+  &lt;li&gt;Security settings. The reason my RDS does not work is because the default security settings do not allow accessing the database over Internet TCP. After changing the settings to include incoming access from my IP address, I was able to create database and connect it to my application. Sounds silly, but it does take some basic knowledge on how these components are integrated to each other.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Many of the above problems come from:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Sloppiness and carelessness: every environment variable counts even if I think otherwise. One reason is because I build on top of other people’s codes, sometimes there are environment variables that seem not really relate to my targeted purpose, but they serve those codes. I don’t write those codes, so I miss out on some edge cases where those seemingly unrelated variables support their code.&lt;/li&gt;
+  &lt;li&gt;Unwillingness to look at the logs. This is indefensible. Sometimes I just got really mad at the system that I refuesed to look at what it said&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Things to remember:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In programming, everything must be perfect, a single error can destroy your application, many small errors can significantly complicate the matter and wreck havoc to your program in ways that are very confusing (e.g. no error stack trace, just doesn’t work…)&lt;/li&gt;
+  &lt;li&gt;Take note of whatever you make. Commit a lot. It will save you whenever strange behavior arises (which sadly more often than expected)&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Mon, 05 Dec 2016 15:56:12 +0700</pubDate>
+        <link>http://yourdomain.com/blog,/aws/blog.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/blog,/aws/blog.html</guid>
+        
+        
+        <category>blog,</category>
+        
+        <category>aws</category>
+        
+      </item>
+    
+      <item>
+        <title>161204 - Fruitless EB</title>
+        <description>&lt;p&gt;Yesterday when I cannot access the database from terminal, I sense there must be something wrong with the authorization. Today after careful look at VPC security group, it turns out I should add my own IP address to database security group.&lt;/p&gt;
+
+&lt;p&gt;It’s a little bit weird that I cannot even access the website homepage deployed in EB. Even though currently it lacks database access, the homepage does not access the database, hence it should show up. Hmmm or maybe because I use a custom homepage template that requires some database access?&lt;/p&gt;
+
+&lt;p&gt;The django creator template nags about having to fillout aws secret key. Why? The secret key is irrelevant, the site should work even without secret key.&lt;/p&gt;
+
+&lt;p&gt;After some time, it seems my Django application needs AWS secret identity and S3 bucket name in order to populate static media files. After providing those parameters and modify the database setting HOST to the endpoints, the site connects, but throws an erorr about ALLOWED_HOSTS, which seems the previous problems might be solved&lt;/p&gt;
+
+&lt;p&gt;Added EB URL to ALLOWED_HOSTS, the site does not respond at all.&lt;/p&gt;
+
+&lt;p&gt;Checking S3, the files are not stored there.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 05 Dec 2016 00:24:33 +0700</pubDate>
+        <link>http://yourdomain.com/blog/blog.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/blog/blog.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>161204 - Using AWS RDS</title>
+        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding Questions&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Before creating a database, what criteria to consider?&lt;/li&gt;
+  &lt;li&gt;What are the authentication and authorization steps to connect to database?&lt;/li&gt;
+  &lt;li&gt;In what way, and how, to connect to database (both manually and through code)?&lt;/li&gt;
+  &lt;li&gt;Can source code in other part of AWS services access to database? Can source code in personal computer access to AWS RDS?&lt;/li&gt;
+  &lt;li&gt;If source code from personal computer or other part of AWS can access to database, what is the security measure?&lt;/li&gt;
+  &lt;li&gt;If data begins to exceed storage, how to scale with AWS RDS?&lt;/li&gt;
+  &lt;li&gt;Is there any backup support mechanism from AWS?&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;why-rds&quot;&gt;Why RDS&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Not bundled CPU, memory… so it would be easier to scale&lt;/li&gt;
+  &lt;li&gt;Additional database security and management service&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;components&quot;&gt;Components&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;DB instances&lt;/li&gt;
+  &lt;li&gt;Region and availability zones&lt;/li&gt;
+  &lt;li&gt;Security groups&lt;/li&gt;
+  &lt;li&gt;DB parameter groups&lt;/li&gt;
+  &lt;li&gt;DB option groups&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;db-instances&quot;&gt;DB instances&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Is an isolated database &lt;em&gt;environment&lt;/em&gt; in the cloud&lt;/li&gt;
+  &lt;li&gt;An instance can contain multiple user-created databases&lt;/li&gt;
+  &lt;li&gt;Each DB instance runs a DB engine (currently MySQL, Maria, Postgre, Oracle &amp;amp; Microsoft SQL Server)&lt;/li&gt;
+  &lt;li&gt;The computation and memory capacity of DB instance is determined by its DB instance class that you can select what you deem suitable (e.g. db.m4.large, db.t2.micro…)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So a DB instance can be considered as a more low-level, hardware-is component, which basically concerns with storage size, storage type (HDD or SSD), computation performance, and DB engine.&lt;/p&gt;
+
+&lt;h4 id=&quot;regions-and-availability-zones&quot;&gt;Regions and availability zones&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Each data center location is called a region (e.g. US North, Asia,…). Each region contains multiple distinc locations called availibility zones (AZ). Each AZ is engineered to be isolated from failures in another AZs.&lt;/li&gt;
+  &lt;li&gt;DB instance can be run in several availability zones if you want. In this case, a replica of your DB instance will e created in a different AZ.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So basically you have an option to make your database more robust to facility failure. Instead of hosting a database in DB instances of a single facility, AWS will replicate your database and run it on other DB instances of other facilities.&lt;/p&gt;
+
+&lt;h4 id=&quot;security-groups&quot;&gt;Security groups&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A security group controls access to a DB instance, by controlling access to the IP address ranges or EC2 instances that the DB instance associates with&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;There are these groups:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;DB security groups: control access to DB instances outside a VPC&lt;/li&gt;
+      &lt;li&gt;VPC security groups: control access to DB instances inside a VPC (probably applies to you if you are new AWS user). You can use a default VPC security group, or specifically define a new security group for your DB instance&lt;/li&gt;
+      &lt;li&gt;EC2 security groups: control access to EC2 instances in general (DB instances outside of VPC is part of EC2 platform)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;db-parameter-groups&quot;&gt;DB parameter groups&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;They are DB configuration values.&lt;/li&gt;
+  &lt;li&gt;They can be applied to one or more DB instances of the same instance type&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;db-option-groups&quot;&gt;DB option groups&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Tools to manage database, organized in groups.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;how-to-access-rds-rds-interfaces&quot;&gt;How to access RDS (RDS interfaces):&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Amazon RDS console: web-based UI&lt;/li&gt;
+  &lt;li&gt;Command line interface&lt;/li&gt;
+  &lt;li&gt;Programmatic interfaces: access database in programming languages&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;steps-to-create-mysql&quot;&gt;Steps to create (MySQL)&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Sign in AWS, create IAM. RDS will need an IAM for authorization&lt;/li&gt;
+  &lt;li&gt;Create a security group for the VPC that will house your DB instance. This security group will dictate how your DB instances will be accessed&lt;/li&gt;
+  &lt;li&gt;Get into &lt;a href=&quot;https://console.aws.amazon.com/rds/&quot;&gt;RDS console&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Choose the region, choose &lt;strong&gt;Instances*, choose **Launch DB Instance&lt;/strong&gt;, select &lt;strong&gt;MySQL DB engine&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;Specify configuration in &lt;strong&gt;&lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html&quot;&gt;Specify DB Details&lt;/a&gt;&lt;/strong&gt; and launch&lt;/li&gt;
+  &lt;li&gt;Connect to the database instance with &lt;code&gt;mysql -h [endpoint] -P [port possibly 3306] -u [username] -p&lt;/code&gt;. Make sure the security group allow your IP address to make incomming access to the DB instance of specified endpoint. You can also connect with &lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html&quot;&gt;SSH&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;answers&quot;&gt;Answers&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Before creating a database with RDS, should keep in mind:
+    &lt;ul&gt;
+      &lt;li&gt;Memory and processor requirements to pick the appropriate DB instance type&lt;/li&gt;
+      &lt;li&gt;Whether to have failover support (multi-AZ deployment)&lt;/li&gt;
+      &lt;li&gt;Does your AWS account have policies t hat grant the permissions needed to perform AWS RDS operations&lt;/li&gt;
+      &lt;li&gt;What TCP/IP port will your database be listening on&lt;/li&gt;
+      &lt;li&gt;What region do you want to place your database&lt;/li&gt;
+      &lt;li&gt;Storage requirement (whether you need database that has high capacity at low cost, or IO intensive, or general purpse)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;There are 2 ways to connect to database:
+    &lt;ul&gt;
+      &lt;li&gt;The RDS security group allows incoming access from your IP address&lt;/li&gt;
+      &lt;li&gt;Your AWS account has IAM user, and that user can access RDS&lt;/li&gt;
+      &lt;li&gt;Your personal computer has id and key of that IAM user&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;To connect database:
+    &lt;ul&gt;
+      &lt;li&gt;(manual) Use &lt;code&gt;mysql&lt;/code&gt; or any more relevant database engine interface&lt;/li&gt;
+      &lt;li&gt;(manual) SSH into the database instance (as referred in step 6 above)&lt;/li&gt;
+      &lt;li&gt;(code) In this case you need to supply the code with database connection configurations and use the appropriate database API&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Can source code in other part of AWS or personal computer access database? &lt;strong&gt;&lt;em&gt;Yes&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;If the above is true, what is the security measure? &lt;strong&gt;&lt;em&gt;More specific security group&lt;/em&gt;&lt;/strong&gt;. For example, instead of allowing all IP addresses to access the database, only allow a trusted subset of IPs…&lt;/li&gt;
+  &lt;li&gt;How to scale with RDS? &lt;strong&gt;&lt;em&gt;Since CPU, memory, storage, IOPS are not bundled&lt;/em&gt;&lt;/strong&gt;, you can &lt;a href=&quot;https://aws.amazon.com/rds/faqs/#hardware-scaling&quot;&gt;increase database capacity&lt;/a&gt; by specifying additional resources…&lt;/li&gt;
+  &lt;li&gt;Is there any backup support mechanism from AWS? &lt;strong&gt;&lt;em&gt;You can configure RDS to &lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html&quot;&gt;automated snapshot&lt;/a&gt;&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
 
 </description>
-        <pubDate>Fri, 02 Dec 2016 20:19:49 +0700</pubDate>
-        <link>http://yourdomain.com/blog/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/blog/welcome-to-jekyll.html</guid>
+        <pubDate>Sun, 04 Dec 2016 18:49:00 +0700</pubDate>
+        <link>http://yourdomain.com/aws/aws-rds.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/aws/aws-rds.html</guid>
+        
+        
+        <category>aws</category>
+        
+      </item>
+    
+      <item>
+        <title>Deploying Django to AWS Elastic Beanstalk</title>
+        <description>&lt;p&gt;Documentation of the steps to deploy Django to EB&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Freeze pip and export environment to requirements.txt, located in the project root folder&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Remember not to include unnecessary libraries. They might inadvertantly break the installation (e.g psycorg2 w/o postgre will raise error during installation)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create .ebextensions and include a [whatever].config file:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;The reference for Python configuration should be &lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-specific.html#command-options-python&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;option_settings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;aws&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elasticbeanstalk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;python&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;WSGIPath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wsgi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;aws&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elasticbeanstalk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;variables&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;aws&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elasticbeanstalk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;python&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;staticfiles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dir_replacement&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;You can edit the configuration any time using &lt;code&gt;eb config&lt;/code&gt;. This command will fetch the configuration from server and populate it to you vim or whatnot for you to edit.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;The complete environment configuration can be referred &lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;eb init&lt;/code&gt; to set up eb cli - server interaction. This step just initializes the information, it does not create anything on the server-side. If you need to change your settings later, run &lt;code&gt;eb init -i&lt;/code&gt;. The whole idea of this initialization process is to set up your desired server region, ssh key (so that you would be able to access your server using command line).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Commit your local repository before the next step (&lt;code&gt;eb create&lt;/code&gt;), as well as whenever you make a change in your local repository and want to reflect that change on server using &lt;code&gt;eb deploy&lt;/code&gt;. The idea of EB is to upload the latest commit that you make and apply that commit to the source code at the server. For that also reason, pay attention with your .gitignore, as it might contain necessary files to run the server.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Run &lt;code&gt;eb create&lt;/code&gt; to create the environment You can create the RDS during &lt;code&gt;eb create&lt;/code&gt;. All of the options stay &lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb3-create.html#eb3-createoptions&quot;&gt;here&lt;/a&gt;. Sample command:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;eb create testenv1 --database.engine mysql --database.username testusername --database.password testpassword --scale 1&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+      &lt;/li&gt;
+      &lt;li&gt;Again, remember to commit local repository before &lt;code&gt;eb create&lt;/code&gt; or &lt;code&gt;eb deploy&lt;/code&gt;.&lt;/li&gt;
+      &lt;li&gt;If you set the database server this way, make sure you log in to that DB server to create a real production DB, either by ssh-ing into server, or directly from your IP address. If the DB server is MySQL, the command looks like: &lt;code&gt;mysql -h [database endpoint] -P [port] -u [username] -p&lt;/code&gt;. Note that if you access the DB server directly from your own IP address, you should change that DB server’s security group to allow incoming access from your IP address.&lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;One more thing to note, if you are using EB and you choose Linux server. However, if your development environment is MacOS or Windows, then just &lt;code&gt;pip freeze&lt;/code&gt; might not accurately reproduce your environment into server. In that case, be prepared to modify configuration file to add any missing dependencies. Example:&lt;/p&gt;
+
+        &lt;ul&gt;
+          &lt;li&gt;
+            &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-yaml&quot; data-lang=&quot;yaml&quot;&gt;&lt;span class=&quot;l-Scalar-Plain&quot;&gt;packages&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;l-Scalar-Plain&quot;&gt;yum&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxml2&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxml2-devel&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxslt&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxslt-devel&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;And this is pretty much is. If you have any error, check the log with &lt;code&gt;eb logs&lt;/code&gt;. AWS EB also provides some very helpful commands below:&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;eb printenv&lt;/code&gt;: print the server environment variables&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;eb console&lt;/code&gt;: open the EB console in web browser&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;eb open&lt;/code&gt;: open your EB-hosted site in web browser&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;eb ssh&lt;/code&gt;: ssh into your server command line.
+    &lt;ul&gt;
+      &lt;li&gt;Your application is located here: &lt;code&gt;/opt/python/current/app&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;If you want to run Python on that server, you should activate the environment by running these 2 commands:
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code&gt;$ source /opt/python/run/venv/bin/activate&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code&gt;$ source /opt/python/current/env&lt;/code&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you decide &lt;em&gt;not&lt;/em&gt; to create the database instance during &lt;code&gt;eb deploy&lt;/code&gt;, you can basically follow this instruction (&lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-rds.html&quot;&gt;Database RDS&lt;/a&gt;):&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html&quot;&gt;Create&lt;/a&gt; Amazon RDS DB instance&lt;/li&gt;
+  &lt;li&gt;Log in to that instance, and create a production database&lt;/li&gt;
+  &lt;li&gt;Establish database connection in the code (host, port, db name, username, password…)&lt;/li&gt;
+  &lt;li&gt;Update the requirements.txt file (typically to include the database programming interface)&lt;/li&gt;
+  &lt;li&gt;Deploy with EB&lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+        <pubDate>Sat, 03 Dec 2016 02:50:12 +0700</pubDate>
+        <link>http://yourdomain.com/web/django-aws.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/web/django-aws.html</guid>
+        
+        
+        <category>web</category>
+        
+      </item>
+    
+      <item>
+        <title>161202 - Deploying Django to AWS</title>
+        <description>&lt;p&gt;Never really deploying anything into production. It should be tricky this time. Anyway what needs to be done should be done.&lt;/p&gt;
+
+&lt;p&gt;EB sounds great, don’t really need to manually manage the interaction with EC2 and RDS and S3. But if I luckily can deploy CPP to EB, I should also try to deploy it manually to EC2, incoporating S3 and RDS&lt;/p&gt;
+
+&lt;p&gt;Remember to include RDS…
+- how should I include RDS in Beanstalk environment creation? (in configuration file, or in ebcli interface?)
+(checked) and edit the environment variables inside the eb configuration file &lt;/p&gt;
+
+&lt;p&gt;During &lt;code&gt;eb init&lt;/code&gt;, it asks to use CodeCommit. Yes, to see how it goes. Hmmm so if you choose CodeCommit, during eb initialization, it will asks information about setting up git (CodeCommit). When it asks Enter Repository Name, don’t include .git, even though the default value has a .git suffix…&lt;/p&gt;
+
+&lt;p&gt;Even in terms of library management, conda and pip are really different. Each has exclusive libraries, but it seems that conda integrates better to pip libraries that vice versa. There are some conda-specific libraries that sound pip-supported, but they are not, so rule of thumbs is for portability, either stick with conda or pip, but not both. Otherwise, remember to install both conda and pip to the production environment.&lt;/p&gt;
+
+&lt;p&gt;During EB initialization, anytime error occurred, I just terminated the environment and started fresh again. That’s stupid. Instead of &lt;code&gt;eb terminate&lt;/code&gt;, it’s quicker to fix the error based on the log, and &lt;code&gt;eb deploy&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Maybe only commited requirements.txt is uploaded. Too late now tomorrow we continue to fight.&lt;/p&gt;
+
+&lt;p&gt;My development environment is MacOS, never thought it would be that troublesome to replicate the working environment into Linux. There are pre-built libraries on Mac that I took for granted. Now look at how &lt;code&gt;yum&lt;/code&gt; works.&lt;/p&gt;
+
+&lt;p&gt;lxml requires libxml and libxslt to work… Pillow requires libjpeg and zlib to work. The fact that now I get error from Pillow seems to mean that lxml is installed succesfully. Minor comfort.&lt;/p&gt;
+
+&lt;p&gt;Ok so I included a shitload of dependencies, &lt;code&gt;yum install libtiff-devel libjpeg-devel libzip-devel freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel&lt;/code&gt;. Only 2 of them are required (libjpeg-devel and libzip-devel). Just installed them for now to see if any error arises. If error arises during the installation of any other optional libraries, I can exclude them later.&lt;/p&gt;
+
+&lt;p&gt;Hmm yum does not have libjpeg-devel (though suggested by official documentation). Instead I need to use libjpeg-turbo-devel. Definitely need to see how yum works. Is yum just a local package manager? Does it have a central repository? Seems like the question is No for the second question.&lt;/p&gt;
+
+&lt;p&gt;So we have a long list of dependency libraries. These libraries serve lxml and Pillow.&lt;/p&gt;
+
+&lt;p&gt;The environment is created. Good lord. Now set up the database. Set database deletion policy to &lt;code&gt;Delete&lt;/code&gt;. Although the RDS is created during &lt;code&gt;eb create&lt;/code&gt;, I could find out the name, url, username, password, but where is the database name?&lt;/p&gt;
+
+&lt;p&gt;Changing the DATABASES info in settings, and adding the migrate.config fails. It involves environ, possibly because of the RDS environment variables.&lt;/p&gt;
+
+&lt;p&gt;Not sure how RDS works, should look how to manually create one, what is a DB instance, the difference between DB instance &amp;amp; DB database, how to connect to database remotely. Do this after dinner&lt;/p&gt;
+</description>
+        <pubDate>Sat, 03 Dec 2016 02:40:45 +0700</pubDate>
+        <link>http://yourdomain.com/blog/blog.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/blog/blog.html</guid>
         
         
         <category>blog</category>

@@ -1,0 +1,17 @@
+---
+layout: post
+title: "161204 - Fruitless EB"
+date: 2016-12-04 17:24:33
+categories: blog
+---
+Yesterday when I cannot access the database from terminal, I sense there must be something wrong with the authorization. Today after careful look at VPC security group, it turns out I should add my own IP address to database security group.
+
+It's a little bit weird that I cannot even access the website homepage deployed in EB. Even though currently it lacks database access, the homepage does not access the database, hence it should show up. Hmmm or maybe because I use a custom homepage template that requires some database access?
+
+The django creator template nags about having to fillout aws secret key. Why? The secret key is irrelevant, the site should work even without secret key.
+
+After some time, it seems my Django application needs AWS secret identity and S3 bucket name in order to populate static media files. After providing those parameters and modify the database setting HOST to the endpoints, the site connects, but throws an erorr about ALLOWED_HOSTS, which seems the previous problems might be solved
+
+Added EB URL to ALLOWED_HOSTS, the site does not respond at all.
+
+Checking S3, the files are not stored there.

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>161205 - Continue with deploying on EB</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/blog,/aws/blog.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">161205 - Continue with deploying on EB</h1>
+    <p class="post-meta">Dec 5, 2016</p>
+  </header>
+
+  <article class="post-content">
+    <p>So here I am still not being able to deploy CPP to EB.</p>
+
+<p>These are the things I should pay special consideration later if I want to redeploy:</p>
+
+<ul>
+  <li>Environment variables</li>
+  <li>All of the settings (the last time, production settings really complicate on what things are important, waht things are not, what things can potentially break the system)</li>
+  <li>Database</li>
+</ul>
+
+<p>This time I should try to basically replicate my local environment on to EB. Just use local settings, should not care about production settings for now.</p>
+
+<p>Remember to disable SECURE_SSL_REDIRECT (set to False) if you don’t have Certificate or if you are in your development environment</p>
+
+<p>So actually it worked. The reason I could not access the site last night is because of automatic SSL redirection. Even after I disabled SSL redirection, the browser (possibly because of header cache) stil automatically forwards my http request as https to the server, which creates an infinite loop. That’s why the site takes forever to load. The site works fine if I connect in Incognito mode and after I flush the cache.</p>
+
+<p>One more thing to note, EB actually uses the latest local git commit to populate the server. As a result, if you make some changes in your local repository and forget to commit those changes, they will not be uploaded and reflected on server. Also keeps an eye on the .gitignore file. There might be some files that make the site works on your local server, but because they are in .gitignore, they will not be uploaded to AWS EB.</p>
+
+<p>Haven’t yet call collectstatic, but maybe not now, it doesn’t really matter as the static files are loaded in local setup.</p>
+
+<p>Several ways for improvement:</p>
+
+<ul>
+  <li>Use S3 to deliver static files instead of server</li>
+  <li>Create a superuser and an admin interface</li>
+  <li>cd to the app directory in ec2’s .bash_profile, also activate the virtual environment
+    <ul>
+      <li><code>cd /opt/python/current/app</code></li>
+      <li><code>source /opt/python/run/venv/bin/activate</code></li>
+      <li><code>source /opt/python/current/env</code>ls</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Wow, so it works in the end. Now to summarize why does it take me 3 days to make the site up:</p>
+
+<ul>
+  <li>Environment variables. Most of the deployments failed because of unsetted environment variables</li>
+  <li>Differences in MacOS and Linux environment. MacOS (or the very useful Homebrew &amp; Anaconda) natively supports some libraries that Linux does not. As a result, those libraries are not included when you export requirements.txt. As a result, deployment with that requirements.txt file on Linux will fail sometimes. Also, I am new to Linux and its various kinds of distribution, so it takes some time to install the appropriate libraries (whether in Fedora, Ubuntu, CentOS, or Amazon Linux…)</li>
+  <li>Security settings. The reason my RDS does not work is because the default security settings do not allow accessing the database over Internet TCP. After changing the settings to include incoming access from my IP address, I was able to create database and connect it to my application. Sounds silly, but it does take some basic knowledge on how these components are integrated to each other.</li>
+</ul>
+
+<p>Many of the above problems come from:</p>
+
+<ul>
+  <li>Sloppiness and carelessness: every environment variable counts even if I think otherwise. One reason is because I build on top of other people’s codes, sometimes there are environment variables that seem not really relate to my targeted purpose, but they serve those codes. I don’t write those codes, so I miss out on some edge cases where those seemingly unrelated variables support their code.</li>
+  <li>Unwillingness to look at the logs. This is indefensible. Sometimes I just got really mad at the system that I refuesed to look at what it said</li>
+</ul>
+
+<p>Things to remember:</p>
+
+<ul>
+  <li>In programming, everything must be perfect, a single error can destroy your application, many small errors can significantly complicate the matter and wreck havoc to your program in ways that are very confusing (e.g. no error stack trace, just doesn’t work…)</li>
+  <li>Take note of whatever you make. Commit a lot. It will save you whenever strange behavior arises (which sadly more often than expected)</li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
