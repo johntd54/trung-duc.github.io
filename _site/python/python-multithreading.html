@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>161214 - Python Multithreading</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/python/python-multithreading.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">161214 - Python Multithreading</h1>
+    <p class="post-meta">Dec 14, 2016</p>
+  </header>
+
+  <article class="post-content">
+    <h1 id="guiding-questions">Guiding Questions</h1>
+
+<ol>
+  <li>Does Python multithreading run the program simultaneously in multiple cores?</li>
+  <li>How to send/receive messages/notifications between threads?</li>
+  <li>What is the overview architecture of all components and their overall interactions with each other in multithreading?</li>
+  <li>What is the maximum number of threads in multithreading?</li>
+</ol>
+
+<h1 id="synchronizing-threads">Synchronizing Threads</h1>
+
+<ul>
+  <li>Thread synchronization uses locking mechanism, which can be activated by calling <code>threading.Lock()</code> method.</li>
+  <li>Use <code>lock.acquire(blocking)</code> to force threads to run synchronously.</li>
+  <li>Use <code>lock.release()</code> to release the lock when it is no longer required.</li>
+  <li>Locking is useful to prevent the race condition.</li>
+  <li>
+    <p>Some useful functions:</p>
+
+    <ul>
+      <li><code>threading.activeCount()</code></li>
+      <li><code>threading.currentThread()</code></li>
+      <li><code>threading.enumerate()</code></li>
+      <li><code>Thread.run()</code>: should be subclassed</li>
+      <li><code>Thread.__init__()</code>: can be subclassed</li>
+      <li><code>Thread.start()</code></li>
+      <li><code>Thread.join([time])</code></li>
+      <li><code>Thread.isAlive()</code></li>
+      <li><code>Thread.getName()</code></li>
+      <li><code>Thread.setName()</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="nittygitties">Nittygitties</h1>
+
+<ul>
+  <li>The variables in main thread (usually thread that Python interpreter was started) will be shared by all other threads. To avoid unintentional modification of those variables, use thread-local data, e.g. <code>mydata = threading.local(); mydata.x = 1;</code></li>
+  <li>Flag a thread daemon by setting daemon=True in constructor or directly setting <code>daemon</code> attribute. A daemon thread is a thread that will not stop Python from exitting.</li>
+  <li>There might be “alien threads” created in Python, which are threads of control started outside the threading module (e.g. directly from C code).</li>
+  <li>Can use <code>threading.Event</code> object to handle communication between threads. One thread signals an event and other threads wait for it.</li>
+</ul>
+
+<h1 id="answers">Answers</h1>
+
+<ol>
+  <li>
+    <p>Does Python multithreading run the program in multiple cores?</p>
+
+    <p>No. Threads are spawned in the same process, which share common memory resources. Moreover CPython (default Python interpreter) uses a Global Interpreter Lock to make sure that only one thread can access Python code at a time.</p>
+  </li>
+  <li>
+    <p>How to send/receive messages/notifications between threads?</p>
+
+    <p>In Python, all threads access the same memory resources (from the same namespace). As a result, data (especially global data) can easily be accessed by all threads.</p>
+  </li>
+</ol>
+
+<h1 id="sources">Sources</h1>
+
+<p>https://www.tutorialspoint.com/python/python_multithreading.htm
+https://pymotw.com/3/threading/
+https://docs.python.org/3.5/library/threading.html
+https://docs.python.org/3.5/library/multiprocessing.html
+http://jessenoller.com/2009/02/01/python-threads-and-the-global-interpreter-lock/</p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

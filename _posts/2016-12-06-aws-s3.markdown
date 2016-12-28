@@ -1,0 +1,46 @@
+---
+layout: post
+title: "161206 - Using AWS S3"
+date: 2016-12-06 01:06:43
+categories: aws
+---
+
+# Guiding Questions
+
+1. How to use S3 to host static files?
+2. Is there any way to limit which files can be downloaded?
+3. How to cd into S3?
+
+
+# Overview
+
+* Structurally organized by buckets > objects (all of these are referred as resources)
+    - A bucket can be thought of as a scope/environment to store related data
+    - Objects are data files
+* Only resource owner (AWS account that creates the resource) has access to data. The resource owner can grant others (e.g. other AWS account, other IAM in the same AWS, application throughg IAM roles) permission to access the resource.
+* Data operations in S3:
+    - AWS S3 console
+    - AWS CLI: [here][s3_cli_1] and [here][s3_cli_2]
+    - Programming interface
+    - REST API calls    
+* Create bucket [here][s3_create]
+* Modify permission [here][s3_permission]
+* Upload objects and set individual permission [here][s3_object_create]
+
+# Answers:
+
+1. How to use S3 to host static files?
+    
+    * Refer [here][s3_host]
+    * Short answer: set up bucket, get ARN, collect Django static files, set CORS
+
+2. Is there anyway to limit which files can be downloaded? **Permission can be set manually for each file, so _yes_**
+
+3. How to cd into S3? **Refer CLI above**.
+
+[s3_create]: http://docs.aws.amazon.com/AmazonS3/latest/UG/CreatingaBucket.html
+[s3_permission]: http://docs.aws.amazon.com/AmazonS3/latest/UG/EditingBucketPermissions.html
+[s3_object_create]: http://docs.aws.amazon.com/AmazonS3/latest/UG/UploadingObjectsintoAmazonS3.html
+[s3_cli_1]: http://docs.aws.amazon.com/cli/latest/reference/s3/index.html
+[s3_cli_2]: http://docs.aws.amazon.com/cli/latest/reference/s3api/index.html
+[s3_host]: https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/

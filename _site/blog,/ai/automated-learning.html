@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>161217 - Automated learning</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/blog,/ai/automated-learning.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">161217 - Automated learning</h1>
+    <p class="post-meta">Dec 18, 2016</p>
+  </header>
+
+  <article class="post-content">
+    <p>Feel embarrassed to know that Python interpreter (at least in Unix), does not require .py extension in script’s filename to work. <code>python helloworld.py</code> is the same as <code>python helloworld</code> is the same as <code>python helloworld.csv</code>… As long as the script has correct Python syntax, it can be run by the Python interpreter regardless the extension of the script’s filename.</p>
+
+<p>Work on automated learning, built on top of Tensorflow.</p>
+
+<p>Store configuration, either:</p>
+
+<ul>
+  <li>Protobuf: serialized like Python’s pickle</li>
+  <li>JSON: human editable -&gt; easier to manually create</li>
+</ul>
+
+<p>For now, the application is not complicated and IO efficiency is not important, so JSON is better due to ease of use and human editable.</p>
+
+<p>Must find a way to “efficiently” store numbers: weights and data. “Efficiently” in this case means small size. This is important since usually data size is large, and making clients download ~10GB of data may put them off, especially if they have slow Internet connection (like in Vietnam). If I can’t find any way to limit the dataset below appropriate size, I should divide the dataset in small chunks and have the clients train the downloaded chunks simultaneously as they download the remaining chunks. Small file size is critically important for weights, as clients will have to upload trained weights to the server, and upload speed tends to be significantly slower than download speed, so smaller data size can speed up the uploading process, lower the chance of suffering from connection/uploading failure.</p>
+
+<ul>
+  <li><code>np.savetxt</code>
+    <ul>
+      <li>Saves np array to <code>.txt</code> file</li>
+      <li>Does not allow saving 3D array and above</li>
+      <li>So we need to flatten 3D array and above into 2D.</li>
+      <li>For large array, it takes forever to save</li>
+      <li>This method is not efficient. The SVHN training dataset is 175MB in <code>.mat</code> but 770MB in <code>.txt</code>.</li>
+    </ul>
+  </li>
+  <li><code>np.save</code>
+    <ul>
+      <li>Saves np array to <code>.npy</code> file</li>
+      <li>Alllow multi-dimensional array</li>
+      <li>Pretty fast with average efficiency. 175MB <code>.mat</code> -&gt; 215MB <code>.npy</code></li>
+      <li>This method should work well for smaller array (maybe good for storing weights). The above 215MB <code>npy</code> data contain 225 million numbers. A large model has ~20 million numbers</li>
+    </ul>
+  </li>
+  <li><code>np.savez</code>
+    <ul>
+      <li>Saves np arrays to a single, uncompressed <code>.npz</code> file</li>
+      <li>The file size is the same as <code>np.save</code></li>
+      <li>Due to its ability to save multiple arrays into a single file, this method can work great to save weights (each weight is a distinctive array)</li>
+    </ul>
+  </li>
+  <li><code>np.savez_compressed</code>
+    <ul>
+      <li>Saves multiple np arrays to a single compressed <code>.npz</code> file</li>
+      <li>Compared to <code>np.savez</code>, this method compresses 215MB of data to 171MB of data, which is even better than <code>.mat</code>. This is handy.</li>
+      <li>When load <code>.npz</code> saved by this method, use <code>np.load</code>. The loaded file is a dictionary-like structure, where each key corresponds to a numpy array.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>To store data, can use:</p>
+
+<ul>
+  <li>Amazon S3: paid</li>
+  <li><strong>Dropbox</strong>: preferred for unlimited data file, should work for data of </li>
+  <li>Box: does not support direct link</li>
+  <li><strong>IDrive</strong>: preferred for 5GB of free data, it seems like this service supports up to 2GB of maximum file size (web-based upload) or 10GB (app-based upload)</li>
+</ul>
+
+<p>To inquire for which models to train, I should use Django Rest API. Client sends a GET request with optional parameters to the server. The server receives GET requests, processes the parameters, and returns a JSON response. These are the common requests and responses:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>…</th>
+      <th>Request</th>
+      <th>Response</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>List out information of all pending models</td>
+      <td>Return the information of all pending models and code to pick</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Just run by default</td>
+      <td>Decide which model to train and send back training data and configuration</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Request an explicit model to train</td>
+      <td>Send back training data and configuration for that model</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>1-Response would be a list of dictionary, each dictionary contains:
+- ID: id of model to train
+- Dataset: name and description of dataset
+- Model description: brief overview of the model</p>
+
+<p>2/3-Response:
+- ID: id of model to train
+- Configuration: link to configuration file
+- Dataset: [list of links to dataset]</p>
+
+<p>1-Request:
+- /list
+- authentication_param</p>
+
+<p>2-Request:
+- /default
+- authentication_param</p>
+
+<p>3- Request:
+- /model
+- authentication_param
+- model_id</p>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -6,9 +6,357 @@
 </description>
     <link>http://yourdomain.com/</link>
     <atom:link href="http://yourdomain.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 06 Dec 2016 00:10:54 +0700</pubDate>
-    <lastBuildDate>Tue, 06 Dec 2016 00:10:54 +0700</lastBuildDate>
+    <pubDate>Sun, 18 Dec 2016 12:24:12 +0700</pubDate>
+    <lastBuildDate>Sun, 18 Dec 2016 12:24:12 +0700</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>161217 - Automated learning</title>
+        <description>&lt;p&gt;Feel embarrassed to know that Python interpreter (at least in Unix), does not require .py extension in script’s filename to work. &lt;code&gt;python helloworld.py&lt;/code&gt; is the same as &lt;code&gt;python helloworld&lt;/code&gt; is the same as &lt;code&gt;python helloworld.csv&lt;/code&gt;… As long as the script has correct Python syntax, it can be run by the Python interpreter regardless the extension of the script’s filename.&lt;/p&gt;
+
+&lt;p&gt;Work on automated learning, built on top of Tensorflow.&lt;/p&gt;
+
+&lt;p&gt;Store configuration, either:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Protobuf: serialized like Python’s pickle&lt;/li&gt;
+  &lt;li&gt;JSON: human editable -&amp;gt; easier to manually create&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For now, the application is not complicated and IO efficiency is not important, so JSON is better due to ease of use and human editable.&lt;/p&gt;
+
+&lt;p&gt;Must find a way to “efficiently” store numbers: weights and data. “Efficiently” in this case means small size. This is important since usually data size is large, and making clients download ~10GB of data may put them off, especially if they have slow Internet connection (like in Vietnam). If I can’t find any way to limit the dataset below appropriate size, I should divide the dataset in small chunks and have the clients train the downloaded chunks simultaneously as they download the remaining chunks. Small file size is critically important for weights, as clients will have to upload trained weights to the server, and upload speed tends to be significantly slower than download speed, so smaller data size can speed up the uploading process, lower the chance of suffering from connection/uploading failure.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;np.savetxt&lt;/code&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Saves np array to &lt;code&gt;.txt&lt;/code&gt; file&lt;/li&gt;
+      &lt;li&gt;Does not allow saving 3D array and above&lt;/li&gt;
+      &lt;li&gt;So we need to flatten 3D array and above into 2D.&lt;/li&gt;
+      &lt;li&gt;For large array, it takes forever to save&lt;/li&gt;
+      &lt;li&gt;This method is not efficient. The SVHN training dataset is 175MB in &lt;code&gt;.mat&lt;/code&gt; but 770MB in &lt;code&gt;.txt&lt;/code&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;np.save&lt;/code&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Saves np array to &lt;code&gt;.npy&lt;/code&gt; file&lt;/li&gt;
+      &lt;li&gt;Alllow multi-dimensional array&lt;/li&gt;
+      &lt;li&gt;Pretty fast with average efficiency. 175MB &lt;code&gt;.mat&lt;/code&gt; -&amp;gt; 215MB &lt;code&gt;.npy&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;This method should work well for smaller array (maybe good for storing weights). The above 215MB &lt;code&gt;npy&lt;/code&gt; data contain 225 million numbers. A large model has ~20 million numbers&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;np.savez&lt;/code&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Saves np arrays to a single, uncompressed &lt;code&gt;.npz&lt;/code&gt; file&lt;/li&gt;
+      &lt;li&gt;The file size is the same as &lt;code&gt;np.save&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;Due to its ability to save multiple arrays into a single file, this method can work great to save weights (each weight is a distinctive array)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;np.savez_compressed&lt;/code&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Saves multiple np arrays to a single compressed &lt;code&gt;.npz&lt;/code&gt; file&lt;/li&gt;
+      &lt;li&gt;Compared to &lt;code&gt;np.savez&lt;/code&gt;, this method compresses 215MB of data to 171MB of data, which is even better than &lt;code&gt;.mat&lt;/code&gt;. This is handy.&lt;/li&gt;
+      &lt;li&gt;When load &lt;code&gt;.npz&lt;/code&gt; saved by this method, use &lt;code&gt;np.load&lt;/code&gt;. The loaded file is a dictionary-like structure, where each key corresponds to a numpy array.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To store data, can use:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Amazon S3: paid&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Dropbox&lt;/strong&gt;: preferred for unlimited data file, should work for data of &lt;/li&gt;
+  &lt;li&gt;Box: does not support direct link&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;IDrive&lt;/strong&gt;: preferred for 5GB of free data, it seems like this service supports up to 2GB of maximum file size (web-based upload) or 10GB (app-based upload)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To inquire for which models to train, I should use Django Rest API. Client sends a GET request with optional parameters to the server. The server receives GET requests, processes the parameters, and returns a JSON response. These are the common requests and responses:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;…&lt;/th&gt;
+      &lt;th&gt;Request&lt;/th&gt;
+      &lt;th&gt;Response&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;1&lt;/td&gt;
+      &lt;td&gt;List out information of all pending models&lt;/td&gt;
+      &lt;td&gt;Return the information of all pending models and code to pick&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;2&lt;/td&gt;
+      &lt;td&gt;Just run by default&lt;/td&gt;
+      &lt;td&gt;Decide which model to train and send back training data and configuration&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;3&lt;/td&gt;
+      &lt;td&gt;Request an explicit model to train&lt;/td&gt;
+      &lt;td&gt;Send back training data and configuration for that model&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;1-Response would be a list of dictionary, each dictionary contains:
+- ID: id of model to train
+- Dataset: name and description of dataset
+- Model description: brief overview of the model&lt;/p&gt;
+
+&lt;p&gt;2/3-Response:
+- ID: id of model to train
+- Configuration: link to configuration file
+- Dataset: [list of links to dataset]&lt;/p&gt;
+
+&lt;p&gt;1-Request:
+- /list
+- authentication_param&lt;/p&gt;
+
+&lt;p&gt;2-Request:
+- /default
+- authentication_param&lt;/p&gt;
+
+&lt;p&gt;3- Request:
+- /model
+- authentication_param
+- model_id&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 18 Dec 2016 04:25:13 +0700</pubDate>
+        <link>http://yourdomain.com/blog,/ai/automated-learning.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/blog,/ai/automated-learning.html</guid>
+        
+        
+        <category>blog,</category>
+        
+        <category>ai</category>
+        
+      </item>
+    
+      <item>
+        <title>161214 - Python Multithreading</title>
+        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding Questions&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Does Python multithreading run the program simultaneously in multiple cores?&lt;/li&gt;
+  &lt;li&gt;How to send/receive messages/notifications between threads?&lt;/li&gt;
+  &lt;li&gt;What is the overview architecture of all components and their overall interactions with each other in multithreading?&lt;/li&gt;
+  &lt;li&gt;What is the maximum number of threads in multithreading?&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;synchronizing-threads&quot;&gt;Synchronizing Threads&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Thread synchronization uses locking mechanism, which can be activated by calling &lt;code&gt;threading.Lock()&lt;/code&gt; method.&lt;/li&gt;
+  &lt;li&gt;Use &lt;code&gt;lock.acquire(blocking)&lt;/code&gt; to force threads to run synchronously.&lt;/li&gt;
+  &lt;li&gt;Use &lt;code&gt;lock.release()&lt;/code&gt; to release the lock when it is no longer required.&lt;/li&gt;
+  &lt;li&gt;Locking is useful to prevent the race condition.&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Some useful functions:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code&gt;threading.activeCount()&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;threading.currentThread()&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;threading.enumerate()&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;Thread.run()&lt;/code&gt;: should be subclassed&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;Thread.__init__()&lt;/code&gt;: can be subclassed&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;Thread.start()&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;Thread.join([time])&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;Thread.isAlive()&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;Thread.getName()&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;Thread.setName()&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;nittygitties&quot;&gt;Nittygitties&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The variables in main thread (usually thread that Python interpreter was started) will be shared by all other threads. To avoid unintentional modification of those variables, use thread-local data, e.g. &lt;code&gt;mydata = threading.local(); mydata.x = 1;&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Flag a thread daemon by setting daemon=True in constructor or directly setting &lt;code&gt;daemon&lt;/code&gt; attribute. A daemon thread is a thread that will not stop Python from exitting.&lt;/li&gt;
+  &lt;li&gt;There might be “alien threads” created in Python, which are threads of control started outside the threading module (e.g. directly from C code).&lt;/li&gt;
+  &lt;li&gt;Can use &lt;code&gt;threading.Event&lt;/code&gt; object to handle communication between threads. One thread signals an event and other threads wait for it.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;answers&quot;&gt;Answers&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Does Python multithreading run the program in multiple cores?&lt;/p&gt;
+
+    &lt;p&gt;No. Threads are spawned in the same process, which share common memory resources. Moreover CPython (default Python interpreter) uses a Global Interpreter Lock to make sure that only one thread can access Python code at a time.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;How to send/receive messages/notifications between threads?&lt;/p&gt;
+
+    &lt;p&gt;In Python, all threads access the same memory resources (from the same namespace). As a result, data (especially global data) can easily be accessed by all threads.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;sources&quot;&gt;Sources&lt;/h1&gt;
+
+&lt;p&gt;https://www.tutorialspoint.com/python/python_multithreading.htm
+https://pymotw.com/3/threading/
+https://docs.python.org/3.5/library/threading.html
+https://docs.python.org/3.5/library/multiprocessing.html
+http://jessenoller.com/2009/02/01/python-threads-and-the-global-interpreter-lock/&lt;/p&gt;
+</description>
+        <pubDate>Wed, 14 Dec 2016 23:43:55 +0700</pubDate>
+        <link>http://yourdomain.com/python/python-multithreading.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/python/python-multithreading.html</guid>
+        
+        
+        <category>python</category>
+        
+      </item>
+    
+      <item>
+        <title>161209 - Haystack Django</title>
+        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding questions&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;What is the structure of Haystack?&lt;/li&gt;
+  &lt;li&gt;What are the requirements of Haystack?&lt;/li&gt;
+  &lt;li&gt;Use cases of Haystack?&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;ideas&quot;&gt;Ideas&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It is a portable interface, that can wraps around a search engine of choice (currently Haystack supports Solr, Elasticsearch, Whoosh, Xapian..).&lt;/li&gt;
+  &lt;li&gt;The idea is to write a single search interface, and you can freely use that interface to use any supported search engine.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;structure&quot;&gt;Structure&lt;/h1&gt;
+
+&lt;h3 id=&quot;searchindex&quot;&gt;SearchIndex&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Similar to Django Models.&lt;/li&gt;
+  &lt;li&gt;Determines what data should be placed in the search index. The search engine will only search for text that stored inside search index.&lt;/li&gt;
+  &lt;li&gt;Generally, a SearchIndex should be created for each type of Model to index.&lt;/li&gt;
+  &lt;li&gt;It will (optionally, but recommended) need a search index template in order to combine all the searchable model fields into index.&lt;/li&gt;
+  &lt;li&gt;The &lt;code&gt;SearchIndex&lt;/code&gt; should be stored in a &lt;code&gt;search_indexes.py&lt;/code&gt; file within the app that it applies to, so that Haystack can automatically pick it up&lt;/li&gt;
+  &lt;li&gt;To put the data from &lt;code&gt;Model&lt;/code&gt; to &lt;code&gt;SearchIndex&lt;/code&gt;, just run &lt;code&gt;python manage.py rebuild_index&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;searchview&quot;&gt;SearchView&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Haystack is a reusable app just like any other application you create in your project.&lt;/li&gt;
+  &lt;li&gt;It requires you to hook a url pattern for search, which will calls Haystack URLconf. Example: &lt;code&gt;(r&#39;^search/&#39;, include(&#39;haystack.urls&#39;)),&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;You should also create a search template for the search result page.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;interaction&quot;&gt;Interaction:&lt;/h3&gt;
+
+&lt;p&gt;User hits a query -&amp;gt; URLconf -&amp;gt; Invoke &lt;code&gt;SearchView&lt;/code&gt; -&amp;gt; &lt;code&gt;earchView&lt;/code&gt; is a subclass of Django’s &lt;code&gt;FormView&lt;/code&gt; -&amp;gt; &lt;code&gt;SearchForm&lt;/code&gt; is called -&amp;gt; make a query with &lt;code&gt;SearchQuerySet&lt;/code&gt; -&amp;gt; the search backend will handle search query from &lt;code&gt;SearchIndex&lt;/code&gt; -&amp;gt; returns the result to &lt;code&gt;SearchView&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h1 id=&quot;answer-questions&quot;&gt;Answer questions&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;What is the structure of Haystack?&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Haystack can be considered as a 3rd-party application.&lt;/li&gt;
+      &lt;li&gt;Follows the same Model (actually in this case Index) / View / Template architecture.&lt;/li&gt;
+      &lt;li&gt;Refer to the interaction refered above to see how it responds to user query&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;What are the requirements of Haystack?&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;It requires a backend search engine. Haystack does not actually do the searching, it is just a wrapper interface to the search engine&lt;/li&gt;
+      &lt;li&gt;At the bare minimum, you need to create a indexed text corpus that the Haystack can direct the search engine to search into; and you need to specify a search URL&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Use cases of Haystack?&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Search&lt;/li&gt;
+      &lt;li&gt;Autocomplete&lt;/li&gt;
+      &lt;li&gt;Faceting&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;reference&quot;&gt;Reference:&lt;/h1&gt;
+&lt;p&gt;http://django-haystack.readthedocs.io/en/v2.5.1/index.html&lt;/p&gt;
+</description>
+        <pubDate>Fri, 09 Dec 2016 22:29:33 +0700</pubDate>
+        <link>http://yourdomain.com/django/haystack-django.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/django/haystack-django.html</guid>
+        
+        
+        <category>django</category>
+        
+      </item>
+    
+      <item>
+        <title>161206 - Using AWS S3</title>
+        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding Questions&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;How to use S3 to host static files?&lt;/li&gt;
+  &lt;li&gt;Is there any way to limit which files can be downloaded?&lt;/li&gt;
+  &lt;li&gt;How to cd into S3?&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;overview&quot;&gt;Overview&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Structurally organized by buckets &amp;gt; objects (all of these are referred as resources)
+    &lt;ul&gt;
+      &lt;li&gt;A bucket can be thought of as a scope/environment to store related data&lt;/li&gt;
+      &lt;li&gt;Objects are data files&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Only resource owner (AWS account that creates the resource) has access to data. The resource owner can grant others (e.g. other AWS account, other IAM in the same AWS, application throughg IAM roles) permission to access the resource.&lt;/li&gt;
+  &lt;li&gt;Data operations in S3:
+    &lt;ul&gt;
+      &lt;li&gt;AWS S3 console&lt;/li&gt;
+      &lt;li&gt;AWS CLI: &lt;a href=&quot;http://docs.aws.amazon.com/cli/latest/reference/s3/index.html&quot;&gt;here&lt;/a&gt; and &lt;a href=&quot;http://docs.aws.amazon.com/cli/latest/reference/s3api/index.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Programming interface&lt;/li&gt;
+      &lt;li&gt;REST API calls    &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Create bucket &lt;a href=&quot;http://docs.aws.amazon.com/AmazonS3/latest/UG/CreatingaBucket.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Modify permission &lt;a href=&quot;http://docs.aws.amazon.com/AmazonS3/latest/UG/EditingBucketPermissions.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Upload objects and set individual permission &lt;a href=&quot;http://docs.aws.amazon.com/AmazonS3/latest/UG/UploadingObjectsintoAmazonS3.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;answers&quot;&gt;Answers:&lt;/h1&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;How to use S3 to host static files?&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Refer &lt;a href=&quot;https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Short answer: set up bucket, get ARN, collect Django static files, set CORS&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Is there anyway to limit which files can be downloaded? &lt;strong&gt;Permission can be set manually for each file, so &lt;em&gt;yes&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;How to cd into S3? &lt;strong&gt;Refer CLI above&lt;/strong&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+        <pubDate>Tue, 06 Dec 2016 08:06:43 +0700</pubDate>
+        <link>http://yourdomain.com/aws/aws-s3.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/aws/aws-s3.html</guid>
+        
+        
+        <category>aws</category>
+        
+      </item>
     
       <item>
         <title>161205 - Continue with deploying on EB</title>
@@ -240,6 +588,27 @@
         
         
         <category>aws</category>
+        
+      </item>
+    
+      <item>
+        <title>161206 - NongSan</title>
+        <description>&lt;p&gt;Created a new post template written in Python, so that I don’t have to deal with filling out every bit of blog information anytime later&lt;/p&gt;
+
+&lt;p&gt;Now setting up nong san. Setting up nong san is actually pretty fast, thanks to all the time that I spent on abstracting the structure and creating all kinds of test for other modules. The job is basically just change the name of nongvien to nongsan lol.&lt;/p&gt;
+
+&lt;p&gt;Thinking about making image sprites and/or incorporating data uris (data uris would be good for icons in case I would not want to use sprites):
+- https://www.npmjs.com/package/sprity
+- https://css-tricks.com/data-uris/&lt;/p&gt;
+
+&lt;p&gt;Any way tonight I will restructure cpp project. The current structure is pretty flat and entails a lot of duplications. Restructuring the code to be a little more vertical would allow easier maintenance.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 04 Dec 2016 18:16:02 +0700</pubDate>
+        <link>http://yourdomain.com/blog/blog.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/blog/blog.html</guid>
+        
+        
+        <category>blog</category>
         
       </item>
     

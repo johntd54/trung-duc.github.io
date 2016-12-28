@@ -1,0 +1,50 @@
+---
+layout: post
+title: "161228 - blog"
+date: 2016-12-28 22:30:15
+categories: blog
+---
+
+Incorporate TinyMCE to cpp using django-tinymce.
+
+1. Install: `pip install django-tinymce`
+2. Configure:
+
+    a. Add 'tinymce' to INSTALLED_APPS
+    b. Make sure that `/media/tinymce` is reachable with `TINYMCE_JS_URL` and `TINYMCE_JS_ROOT`
+    c. Configure default editor with `TINYMCE_DEFAULT_CONFIG`. Also see [here](http://www.tinymce.com/wiki.php/configuration). The following is the configuration I use for cpp (document here for future reference)
+
+    {% highlight python %}
+    TINYMCE_DEFAULT_CONFIG = {
+        "mode": "textareas",
+        "theme": "advanced",
+        "theme_advanced_toolbar_location": "top",
+        "theme_advanced_toolbar_align" : "left",
+        'height': "350px",
+        'width': "700px",
+        "plugins": ("table,save,advhr,advimage,advlink,iespell,"
+                    "insertdatetime,preview,fullscreen"),
+        "theme_advanced_buttons1": (
+                "fullscreen,separator,"
+                "preview,separator,"
+                "bold,italic,underline,strikethrough,separator,"
+                "bullist,numlist, outdent, indent, separator,undo,redo,separator,"
+                "link,unlink,anchor,separator,"
+                "image,cleanup,help,separator,"
+                "code,table"),
+        "auto_cleanup_word": True,
+        "plugin_insertdate_dateFormat": "%m/%d/%Y",
+        "plugin_insertdate_timeFormat": "%H:%M:%S",
+        "extended_valid_elements": (
+                "a[name|href|target=_blank|title|onclick],"
+                "img[class|src|border=0|alt|title|hspace|vspace|width|height"
+                        "|align|onmouseover|onmouseout|name],"
+                "hr[class|width|size|noshade],"
+                "font[face|size|color|style],"
+                "span[class|align|style]")
+    }
+    {% endhighlight %}
+
+3. Create editor simply just by changing `fields.TextField` to `tinymce.models.HTMLField`. This editor should conform to the default configuration specified above.
+
+

@@ -309,6 +309,12 @@ pre {
       .post-content h4 {
         font-size: 18px; } }
 
+table {
+  margin: 40px auto; }
+
+ul:nth-child(1) > li {
+  margin-bottom: 20px; }
+
 /**
  * Syntax highlighting styles
  */

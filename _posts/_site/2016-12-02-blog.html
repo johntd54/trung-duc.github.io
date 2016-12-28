@@ -1,0 +1,31 @@
+<p>Never really deploying anything into production. It should be tricky this time. Anyway what needs to be done should be done.</p>
+
+<p>EB sounds great, don’t really need to manually manage the interaction with EC2 and RDS and S3. But if I luckily can deploy CPP to EB, I should also try to deploy it manually to EC2, incoporating S3 and RDS</p>
+
+<p>Remember to include RDS…
+- how should I include RDS in Beanstalk environment creation? (in configuration file, or in ebcli interface?)
+(checked) and edit the environment variables inside the eb configuration file </p>
+
+<p>During <code>eb init</code>, it asks to use CodeCommit. Yes, to see how it goes. Hmmm so if you choose CodeCommit, during eb initialization, it will asks information about setting up git (CodeCommit). When it asks Enter Repository Name, don’t include .git, even though the default value has a .git suffix…</p>
+
+<p>Even in terms of library management, conda and pip are really different. Each has exclusive libraries, but it seems that conda integrates better to pip libraries that vice versa. There are some conda-specific libraries that sound pip-supported, but they are not, so rule of thumbs is for portability, either stick with conda or pip, but not both. Otherwise, remember to install both conda and pip to the production environment.</p>
+
+<p>During EB initialization, anytime error occurred, I just terminated the environment and started fresh again. That’s stupid. Instead of <code>eb terminate</code>, it’s quicker to fix the error based on the log, and <code>eb deploy</code></p>
+
+<p>Maybe only commited requirements.txt is uploaded. Too late now tomorrow we continue to fight.</p>
+
+<p>My development environment is MacOS, never thought it would be that troublesome to replicate the working environment into Linux. There are pre-built libraries on Mac that I took for granted. Now look at how <code>yum</code> works.</p>
+
+<p>lxml requires libxml and libxslt to work… Pillow requires libjpeg and zlib to work. The fact that now I get error from Pillow seems to mean that lxml is installed succesfully. Minor comfort.</p>
+
+<p>Ok so I included a shitload of dependencies, <code>yum install libtiff-devel libjpeg-devel libzip-devel freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel</code>. Only 2 of them are required (libjpeg-devel and libzip-devel). Just installed them for now to see if any error arises. If error arises during the installation of any other optional libraries, I can exclude them later.</p>
+
+<p>Hmm yum does not have libjpeg-devel (though suggested by official documentation). Instead I need to use libjpeg-turbo-devel. Definitely need to see how yum works. Is yum just a local package manager? Does it have a central repository? Seems like the question is No for the second question.</p>
+
+<p>So we have a long list of dependency libraries. These libraries serve lxml and Pillow.</p>
+
+<p>The environment is created. Good lord. Now set up the database. Set database deletion policy to <code>Delete</code>. Although the RDS is created during <code>eb create</code>, I could find out the name, url, username, password, but where is the database name?</p>
+
+<p>Changing the DATABASES info in settings, and adding the migrate.config fails. It involves environ, possibly because of the RDS environment variables.</p>
+
+<p>Not sure how RDS works, should look how to manually create one, what is a DB instance, the difference between DB instance &amp; DB database, how to connect to database remotely. Do this after dinner</p>

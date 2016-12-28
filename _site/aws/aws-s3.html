@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>161206 - Using AWS S3</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/aws/aws-s3.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">161206 - Using AWS S3</h1>
+    <p class="post-meta">Dec 6, 2016</p>
+  </header>
+
+  <article class="post-content">
+    <h1 id="guiding-questions">Guiding Questions</h1>
+
+<ol>
+  <li>How to use S3 to host static files?</li>
+  <li>Is there any way to limit which files can be downloaded?</li>
+  <li>How to cd into S3?</li>
+</ol>
+
+<h1 id="overview">Overview</h1>
+
+<ul>
+  <li>Structurally organized by buckets &gt; objects (all of these are referred as resources)
+    <ul>
+      <li>A bucket can be thought of as a scope/environment to store related data</li>
+      <li>Objects are data files</li>
+    </ul>
+  </li>
+  <li>Only resource owner (AWS account that creates the resource) has access to data. The resource owner can grant others (e.g. other AWS account, other IAM in the same AWS, application throughg IAM roles) permission to access the resource.</li>
+  <li>Data operations in S3:
+    <ul>
+      <li>AWS S3 console</li>
+      <li>AWS CLI: <a href="http://docs.aws.amazon.com/cli/latest/reference/s3/index.html">here</a> and <a href="http://docs.aws.amazon.com/cli/latest/reference/s3api/index.html">here</a></li>
+      <li>Programming interface</li>
+      <li>REST API calls    </li>
+    </ul>
+  </li>
+  <li>Create bucket <a href="http://docs.aws.amazon.com/AmazonS3/latest/UG/CreatingaBucket.html">here</a></li>
+  <li>Modify permission <a href="http://docs.aws.amazon.com/AmazonS3/latest/UG/EditingBucketPermissions.html">here</a></li>
+  <li>Upload objects and set individual permission <a href="http://docs.aws.amazon.com/AmazonS3/latest/UG/UploadingObjectsintoAmazonS3.html">here</a></li>
+</ul>
+
+<h1 id="answers">Answers:</h1>
+
+<ol>
+  <li>
+    <p>How to use S3 to host static files?</p>
+
+    <ul>
+      <li>Refer <a href="https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/">here</a></li>
+      <li>Short answer: set up bucket, get ARN, collect Django static files, set CORS</li>
+    </ul>
+  </li>
+  <li>
+    <p>Is there anyway to limit which files can be downloaded? <strong>Permission can be set manually for each file, so <em>yes</em></strong></p>
+  </li>
+  <li>
+    <p>How to cd into S3? <strong>Refer CLI above</strong>.</p>
+  </li>
+</ol>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

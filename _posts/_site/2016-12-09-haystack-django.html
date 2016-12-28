@@ -1,0 +1,73 @@
+<h1 id="guiding-questions">Guiding questions</h1>
+
+<ol>
+  <li>What is the structure of Haystack?</li>
+  <li>What are the requirements of Haystack?</li>
+  <li>Use cases of Haystack?</li>
+</ol>
+
+<h1 id="ideas">Ideas</h1>
+
+<ul>
+  <li>It is a portable interface, that can wraps around a search engine of choice (currently Haystack supports Solr, Elasticsearch, Whoosh, Xapian..).</li>
+  <li>The idea is to write a single search interface, and you can freely use that interface to use any supported search engine.</li>
+</ul>
+
+<h1 id="structure">Structure</h1>
+
+<h2 id="searchindex">SearchIndex</h2>
+
+<ul>
+  <li>Similar to Django Models.</li>
+  <li>Determines what data should be placed in the search index. The search engine will only search for text that stored inside search index.</li>
+  <li>Generally, a SearchIndex should be created for each type of Model to index.</li>
+  <li>It will (optionally, but recommended) need a search index template in order to combine all the searchable model fields into index.</li>
+  <li>The <code>SearchIndex</code> should be stored in a <code>search_indexes.py</code> file within the app that it applies to, so that Haystack can automatically pick it up</li>
+  <li>To put the data from <code>Model</code> to <code>SearchIndex</code>, just run <code>python manage.py rebuild_index</code></li>
+</ul>
+
+<h2 id="searchview">SearchView</h2>
+
+<ul>
+  <li>Haystack is a reusable app just like any other application you create in your project.</li>
+  <li>It requires you to hook a url pattern for search, which will calls Haystack URLconf. Example: <code>(r'^search/', include('haystack.urls')),</code></li>
+  <li>You should also create a search template for the search result page.</li>
+</ul>
+
+<h2 id="interaction">Interaction:</h2>
+
+<p>User hits a query -&gt; URLconf -&gt; Invoke <code>SearchView</code> -&gt; <code>earchView</code> is a subclass of Django’s <code>FormView</code> -&gt; <code>SearchForm</code> is called -&gt; make a query with <code>SearchQuerySet</code> -&gt; the search backend will handle search query from <code>SearchIndex</code> -&gt; returns the result to <code>SearchView</code>.</p>
+
+<h1 id="answer-questions">Answer questions</h1>
+
+<ol>
+  <li>
+    <p>What is the structure of Haystack?</p>
+
+    <ul>
+      <li>Haystack can be considered as a 3rd-party application.</li>
+      <li>Follows the same Model (actually in this case Index) / View / Template architecture.</li>
+      <li>Refer to the interaction refered above to see how it responds to user query</li>
+    </ul>
+  </li>
+  <li>
+    <p>What are the requirements of Haystack?</p>
+
+    <ul>
+      <li>It requires a backend search engine. Haystack does not actually do the searching, it is just a wrapper interface to the search engine</li>
+      <li>At the bare minimum, you need to create a indexed text corpus that the Haystack can direct the search engine to search into; and you need to specify a search URL</li>
+    </ul>
+  </li>
+  <li>
+    <p>Use cases of Haystack?</p>
+
+    <ul>
+      <li>Search</li>
+      <li>Autocomplete</li>
+      <li>Faceting</li>
+    </ul>
+  </li>
+</ol>
+
+<h1 id="reference">Reference:</h1>
+<p>http://django-haystack.readthedocs.io/en/v2.5.1/index.html</p>
