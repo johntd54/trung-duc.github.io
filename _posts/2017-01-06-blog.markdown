@@ -1,0 +1,18 @@
+---
+layout: post
+title: "170106 - Blog"
+date: 2017-01-06 01:44:58
+categories: blog
+---
+
+Today I upgraded cpp a little bit. Certain things that I learned:
+
+- In Django, when defining Model, you'd better leave .Meta.db_table (table name) as it is by default. If you set table name yourself, the name you pick would have some chances to collide with Django's default table name for other model (e.g. through table for ManyToMany relationship), which would make tracing the bugs a little bit time consuming. 
+
+- `django.contrib.staticfiles` can discover static files if `debug` is set to `True`, which in itself poses a security risk, not to mention that it is inefficient. To use `django.contrib.staticfiles` without setting `debug` to `True`, manually modify Apache and wsgi to serve static files at `STATIC_ROOT`
+
+- Include `django.contrib.staticfiles` to run `python manage.py collectstatic` to collect all static files inside all applications (both your apps and 3rd-party apps) into `STATIC_ROOT` directory. If you serve static files on the same server that runs Django, then you would probably wants to use `collectstatic` on the server.
+
+- You would also want to create a folder to contain project-level files and information. Don't just store those project-level files directly inside project folder, that would become messy really fast.
+
+- It's best if your project's development structure resembles production structure. 2 main benefits: (1) when your development environment does not work, you know the production environment also does not work, and if you can fix the problem in your own development environment, then it's highly likely that the same problem in production environment would also be fixed, (2) make development environment resemble production environment will force you to keep your development environment organized.
