@@ -150,3 +150,5 @@ For details on options and arugments, refer [here](http://django-haystack.readth
 
 # Reference:
 http://django-haystack.readthedocs.io/en/v2.5.1/index.html
+http://www.francelabs.com/blog/tutorial-solrcloud-5-amazon-ec2/
+https://wiki.apache.org/solr/SolrOnAmazonEC2

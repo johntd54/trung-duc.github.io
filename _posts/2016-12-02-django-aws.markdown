@@ -62,6 +62,7 @@ Documentation of the steps to deploy Django to EB
     - If you want to run Python on that server, you should activate the environment by running these 2 commands:
       + `$ source /opt/python/run/venv/bin/activate`
       + `$ source /opt/python/current/env`
+    - Your server wsgi configuration is located here: `/etc/httpd/conf.d/wsgi.conf`
 
 
 If you decide *not* to create the database instance during `eb create`, you can basically follow this instruction ([Database RDS][python_eb_rds]):
