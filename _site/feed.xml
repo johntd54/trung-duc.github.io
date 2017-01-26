@@ -6,290 +6,416 @@
 </description>
     <link>http://yourdomain.com/</link>
     <atom:link href="http://yourdomain.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 18 Dec 2016 12:24:12 +0700</pubDate>
-    <lastBuildDate>Sun, 18 Dec 2016 12:24:12 +0700</lastBuildDate>
+    <pubDate>Thu, 26 Jan 2017 11:43:51 +0700</pubDate>
+    <lastBuildDate>Thu, 26 Jan 2017 11:43:51 +0700</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
     
       <item>
-        <title>161217 - Automated learning</title>
-        <description>&lt;p&gt;Feel embarrassed to know that Python interpreter (at least in Unix), does not require .py extension in script’s filename to work. &lt;code&gt;python helloworld.py&lt;/code&gt; is the same as &lt;code&gt;python helloworld&lt;/code&gt; is the same as &lt;code&gt;python helloworld.csv&lt;/code&gt;… As long as the script has correct Python syntax, it can be run by the Python interpreter regardless the extension of the script’s filename.&lt;/p&gt;
+        <title>170117 - Vim cheatsheet</title>
+        <description>&lt;p&gt;To remember:
+- &lt;code&gt;operator [number] motion&lt;/code&gt;: perform the operation [number] of times. If [number] is not specified, then perform 1 time. Example: &lt;code&gt;dd&lt;/code&gt; deletes a line, &lt;code&gt;d2d&lt;/code&gt; or &lt;code&gt;2dd&lt;/code&gt; deletes 2 lines; &lt;code&gt;j&lt;/code&gt; moves the cursor down 1 line, &lt;code&gt;10j&lt;/code&gt; moves the cursor down 10 lines&lt;/p&gt;
 
-&lt;p&gt;Work on automated learning, built on top of Tensorflow.&lt;/p&gt;
-
-&lt;p&gt;Store configuration, either:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Protobuf: serialized like Python’s pickle&lt;/li&gt;
-  &lt;li&gt;JSON: human editable -&amp;gt; easier to manually create&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;For now, the application is not complicated and IO efficiency is not important, so JSON is better due to ease of use and human editable.&lt;/p&gt;
-
-&lt;p&gt;Must find a way to “efficiently” store numbers: weights and data. “Efficiently” in this case means small size. This is important since usually data size is large, and making clients download ~10GB of data may put them off, especially if they have slow Internet connection (like in Vietnam). If I can’t find any way to limit the dataset below appropriate size, I should divide the dataset in small chunks and have the clients train the downloaded chunks simultaneously as they download the remaining chunks. Small file size is critically important for weights, as clients will have to upload trained weights to the server, and upload speed tends to be significantly slower than download speed, so smaller data size can speed up the uploading process, lower the chance of suffering from connection/uploading failure.&lt;/p&gt;
+&lt;p&gt;Move around:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;code&gt;np.savetxt&lt;/code&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Saves np array to &lt;code&gt;.txt&lt;/code&gt; file&lt;/li&gt;
-      &lt;li&gt;Does not allow saving 3D array and above&lt;/li&gt;
-      &lt;li&gt;So we need to flatten 3D array and above into 2D.&lt;/li&gt;
-      &lt;li&gt;For large array, it takes forever to save&lt;/li&gt;
-      &lt;li&gt;This method is not efficient. The SVHN training dataset is 175MB in &lt;code&gt;.mat&lt;/code&gt; but 770MB in &lt;code&gt;.txt&lt;/code&gt;.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;np.save&lt;/code&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Saves np array to &lt;code&gt;.npy&lt;/code&gt; file&lt;/li&gt;
-      &lt;li&gt;Alllow multi-dimensional array&lt;/li&gt;
-      &lt;li&gt;Pretty fast with average efficiency. 175MB &lt;code&gt;.mat&lt;/code&gt; -&amp;gt; 215MB &lt;code&gt;.npy&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;This method should work well for smaller array (maybe good for storing weights). The above 215MB &lt;code&gt;npy&lt;/code&gt; data contain 225 million numbers. A large model has ~20 million numbers&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;np.savez&lt;/code&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Saves np arrays to a single, uncompressed &lt;code&gt;.npz&lt;/code&gt; file&lt;/li&gt;
-      &lt;li&gt;The file size is the same as &lt;code&gt;np.save&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;Due to its ability to save multiple arrays into a single file, this method can work great to save weights (each weight is a distinctive array)&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;np.savez_compressed&lt;/code&gt;
-    &lt;ul&gt;
-      &lt;li&gt;Saves multiple np arrays to a single compressed &lt;code&gt;.npz&lt;/code&gt; file&lt;/li&gt;
-      &lt;li&gt;Compared to &lt;code&gt;np.savez&lt;/code&gt;, this method compresses 215MB of data to 171MB of data, which is even better than &lt;code&gt;.mat&lt;/code&gt;. This is handy.&lt;/li&gt;
-      &lt;li&gt;When load &lt;code&gt;.npz&lt;/code&gt; saved by this method, use &lt;code&gt;np.load&lt;/code&gt;. The loaded file is a dictionary-like structure, where each key corresponds to a numpy array.&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;h&lt;/code&gt; to move left&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;j&lt;/code&gt; to move down&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;k&lt;/code&gt; to move up&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;l&lt;/code&gt; to move right&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;0&lt;/code&gt; to move to the begin of line&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;^&lt;/code&gt; to move to the first non-space character of line&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;$&lt;/code&gt; to move to the end of line&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;gg&lt;/code&gt; to move to the first line of file&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;G&lt;/code&gt; to move to the last line of file&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;w&lt;/code&gt; to move to the beginning of next word&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;e&lt;/code&gt; to move to the end of next word&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;[number]G&lt;/code&gt; to move to the specified line number&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;%&lt;/code&gt; to move/alternate between beginning and ending ‘( )’, ‘[ ]’ and ‘{ }’ characters, if the cursor is currently in/on those characters&lt;/li&gt;
+  &lt;li&gt;Ctrl-O to move the cursor back to where you were, repeat to go further&lt;/li&gt;
+  &lt;li&gt;Ctrl-I to is the reverse of Ctrl-0&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;To store data, can use:&lt;/p&gt;
+&lt;p&gt;File operations:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Amazon S3: paid&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Dropbox&lt;/strong&gt;: preferred for unlimited data file, should work for data of &lt;/li&gt;
-  &lt;li&gt;Box: does not support direct link&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;IDrive&lt;/strong&gt;: preferred for 5GB of free data, it seems like this service supports up to 2GB of maximum file size (web-based upload) or 10GB (app-based upload)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:q!&lt;/code&gt; to quit without change&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:wq&lt;/code&gt; to write/save and quit&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:w [filename]&lt;/code&gt; to write the text to that file&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;vim [filename]&lt;/code&gt; to open a file with vim&lt;/li&gt;
+  &lt;li&gt;Ctrl-G to show location of the file and file status&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;/[term]&lt;/code&gt; to search the term from the begin of file, use &lt;code&gt;n&lt;/code&gt; and &lt;code&gt;N&lt;/code&gt; to search forward, backward respectively&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;?[term]&lt;/code&gt; to search the term from the end of file, use &lt;code&gt;N&lt;/code&gt; and &lt;code&gt;n&lt;/code&gt; to search forward, backward respectively
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code&gt;:set ic&lt;/code&gt; to ignore case-sensitivity and &lt;code&gt;:set noic&lt;/code&gt; to turn it off&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;:set hls&lt;/code&gt; to set highlight search and &lt;code&gt;:set nohls&lt;/code&gt; to turn it off, &lt;code&gt;:nohlsearch&lt;/code&gt; to temporarily turn the color off&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;:set is&lt;/code&gt; to set incremental search and &lt;code&gt;:set nois&lt;/code&gt; to turn it off&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:![command]&lt;/code&gt; to execute any terminal command. Example &lt;code&gt;:!cd ..&lt;/code&gt;, &lt;code&gt;:!pwd&lt;/code&gt;&lt;code&gt;, &lt;/code&gt;:!ls`,…&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;v&lt;/code&gt; to start visual mode&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;y&lt;/code&gt; to yank (copy), (to paste it, move the cursor to desired location and &lt;code&gt;p&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;y&lt;/code&gt; is an operator, and can work with motion like (“Move around” section above)&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;To inquire for which models to train, I should use Django Rest API. Client sends a GET request with optional parameters to the server. The server receives GET requests, processes the parameters, and returns a JSON response. These are the common requests and responses:&lt;/p&gt;
+&lt;p&gt;Delete operations:&lt;/p&gt;
 
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;…&lt;/th&gt;
-      &lt;th&gt;Request&lt;/th&gt;
-      &lt;th&gt;Response&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;1&lt;/td&gt;
-      &lt;td&gt;List out information of all pending models&lt;/td&gt;
-      &lt;td&gt;Return the information of all pending models and code to pick&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;2&lt;/td&gt;
-      &lt;td&gt;Just run by default&lt;/td&gt;
-      &lt;td&gt;Decide which model to train and send back training data and configuration&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;3&lt;/td&gt;
-      &lt;td&gt;Request an explicit model to train&lt;/td&gt;
-      &lt;td&gt;Send back training data and configuration for that model&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;x&lt;/code&gt; to delete the character at cursor&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;dw&lt;/code&gt; to delete a word, and the spaces leading to the next word (the cursor must be at the first character of the word to delete)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;de&lt;/code&gt; to delete a word only (the cursor must be at the first character of the word to delete)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;d$&lt;/code&gt; to delete from the cursor to the end of line&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;dd&lt;/code&gt; to delete line&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;1-Response would be a list of dictionary, each dictionary contains:
-- ID: id of model to train
-- Dataset: name and description of dataset
-- Model description: brief overview of the model&lt;/p&gt;
+&lt;p&gt;Add texts:&lt;/p&gt;
 
-&lt;p&gt;2/3-Response:
-- ID: id of model to train
-- Configuration: link to configuration file
-- Dataset: [list of links to dataset]&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;i&lt;/code&gt; to insert before the cursor&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;a&lt;/code&gt; to insert after the cursor (basically to append to a line)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;A&lt;/code&gt; to append at the end of the line&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;p&lt;/code&gt; to put the previously deleted texts&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:r [filename]&lt;/code&gt; to insert the content of the file below the current cursor&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:r ![command]&lt;/code&gt; to insert output of the command below the current cursor&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;o&lt;/code&gt; to make and move to a new line under the cursor&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;O&lt;/code&gt; to make and move to a new line above the cursor&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;1-Request:
-- /list
-- authentication_param&lt;/p&gt;
+&lt;p&gt;Edit texts:&lt;/p&gt;
 
-&lt;p&gt;2-Request:
-- /default
-- authentication_param&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;u&lt;/code&gt; to undo the last change&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;U&lt;/code&gt; to undo the last changes in the whole line&lt;/li&gt;
+  &lt;li&gt;Ctrl-R to undo the undo&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;r[character]&lt;/code&gt; to replace the character at the cursor&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;R&lt;/code&gt; to replace multiple characters&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;ce&lt;/code&gt; to change until the end of the word (kind of a shorthand for &lt;code&gt;de&lt;/code&gt; then &lt;code&gt;i&lt;/code&gt;, without having to have the cursor at the beginning of the word)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;c$&lt;/code&gt; to change until the end of line (kind of a shorthand for &lt;code&gt;d$&lt;/code&gt; then &lt;code&gt;i&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:s/[old]/[new]&lt;/code&gt; to substitute the first occurence of old word with new word &lt;em&gt;in the current line&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:s/[old]/[new]/g&lt;/code&gt; to substitute all old words with new word &lt;em&gt;in the current line&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:[number_small],[number_large]s/[old]/[new]/g&lt;/code&gt; to substitute all old words with new word between line [number_small] and line [number_large]&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:%s/old/new/g&lt;/code&gt; to substitute all old words with new word &lt;em&gt;in the file&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;:%s/old/new/gc&lt;/code&gt; to substitue all old words with new word &lt;em&gt;in the file&lt;/em&gt; but with notifying prompt for each change occurence
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code&gt;y&lt;/code&gt; to replace&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;n&lt;/code&gt; to skip&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;a&lt;/code&gt; to replace and end all substitution there&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;q&lt;/code&gt; to abort&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;l&lt;/code&gt;: like &lt;code&gt;a&lt;/code&gt; but will also move the cursor to begin of line&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;3- Request:
-- /model
-- authentication_param
-- model_id&lt;/p&gt;
+&lt;p&gt;Efficiency:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;:ab [abbreviated] [term]&lt;/code&gt; to create an abbreviation of term&lt;/li&gt;
+&lt;/ul&gt;
 
 </description>
-        <pubDate>Sun, 18 Dec 2016 04:25:13 +0700</pubDate>
-        <link>http://yourdomain.com/blog,/ai/automated-learning.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/blog,/ai/automated-learning.html</guid>
+        <pubDate>Tue, 17 Jan 2017 23:45:06 +0000</pubDate>
+        <link>http://yourdomain.com/vim/vim-cheatsheet.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/vim/vim-cheatsheet.html</guid>
         
         
-        <category>blog,</category>
-        
-        <category>ai</category>
+        <category>vim</category>
         
       </item>
     
       <item>
-        <title>161214 - Python Multithreading</title>
-        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding Questions&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Does Python multithreading run the program simultaneously in multiple cores?&lt;/li&gt;
-  &lt;li&gt;How to send/receive messages/notifications between threads?&lt;/li&gt;
-  &lt;li&gt;What is the overview architecture of all components and their overall interactions with each other in multithreading?&lt;/li&gt;
-  &lt;li&gt;What is the maximum number of threads in multithreading?&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;synchronizing-threads&quot;&gt;Synchronizing Threads&lt;/h1&gt;
+        <title>170115 - Notes on Apache</title>
+        <description>&lt;h1 id=&quot;overview&quot;&gt;Overview&lt;/h1&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Thread synchronization uses locking mechanism, which can be activated by calling &lt;code&gt;threading.Lock()&lt;/code&gt; method.&lt;/li&gt;
-  &lt;li&gt;Use &lt;code&gt;lock.acquire(blocking)&lt;/code&gt; to force threads to run synchronously.&lt;/li&gt;
-  &lt;li&gt;Use &lt;code&gt;lock.release()&lt;/code&gt; to release the lock when it is no longer required.&lt;/li&gt;
-  &lt;li&gt;Locking is useful to prevent the race condition.&lt;/li&gt;
+  &lt;li&gt;it is a piece of software that runs in the background (hence it’s best that the system supports multi-tasking)&lt;/li&gt;
+  &lt;li&gt;its main purpose is to listen to request (from IP addresses specified inside its config files), analyzes that request, and returns a response&lt;/li&gt;
+  &lt;li&gt;it can be extended by modules&lt;/li&gt;
+  &lt;li&gt;it is set up to run through its configuration files&lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;Some useful functions:&lt;/p&gt;
+    &lt;p&gt;multiple domains can be on the same IP (virtual hosts), or vice versa (multiple servers or multi-addresses)&lt;/p&gt;
 
     &lt;ul&gt;
-      &lt;li&gt;&lt;code&gt;threading.activeCount()&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;threading.currentThread()&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;threading.enumerate()&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;Thread.run()&lt;/code&gt;: should be subclassed&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;Thread.__init__()&lt;/code&gt;: can be subclassed&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;Thread.start()&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;Thread.join([time])&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;Thread.isAlive()&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;Thread.getName()&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;Thread.setName()&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;in the first case, the process looks as follow: user types domain name -&amp;gt; browser sends the domain name to DNS service -&amp;gt; DNS service returns the IP address of that domain name -&amp;gt; browser connects to that IP address, with the domain name in HOST header to let server know which site should be served if the server hosts multiple sites&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;nittygitties&quot;&gt;Nittygitties&lt;/h1&gt;
+&lt;h1 id=&quot;virtual-hosts&quot;&gt;Virtual hosts&lt;/h1&gt;
+&lt;p&gt;(the text below is the most important partially copied from &lt;a href=&quot;https://httpd.apache.org/docs/2.4/vhosts/details.html&quot;&gt;here&lt;/a&gt;)&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;The variables in main thread (usually thread that Python interpreter was started) will be shared by all other threads. To avoid unintentional modification of those variables, use thread-local data, e.g. &lt;code&gt;mydata = threading.local(); mydata.x = 1;&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;Flag a thread daemon by setting daemon=True in constructor or directly setting &lt;code&gt;daemon&lt;/code&gt; attribute. A daemon thread is a thread that will not stop Python from exitting.&lt;/li&gt;
-  &lt;li&gt;There might be “alien threads” created in Python, which are threads of control started outside the threading module (e.g. directly from C code).&lt;/li&gt;
-  &lt;li&gt;Can use &lt;code&gt;threading.Event&lt;/code&gt; object to handle communication between threads. One thread signals an event and other threads wait for it.&lt;/li&gt;
+  &lt;li&gt;There is a main server which consists of all the definitions appearing outside of &lt;virtualhost&gt; sections.&lt;/virtualhost&gt;&lt;/li&gt;
+  &lt;li&gt;There are virtual servers, called vhosts, which are defined by &lt;virtualhost&gt; sections.&lt;/virtualhost&gt;&lt;/li&gt;
+  &lt;li&gt;Each VirtualHost directive includes one or more addresses and optional ports. Hostnames can be used in place of IP addresses in a virtual host definition, but they are resolved at startup and if any name resolutions fail, those virtual host definitions are ignored. This is, therefore, not recommended. The address can be specified as *, which will match a request if no other vhost has the explicit address on which the request was received. The address appearing in the VirtualHost directive can have an optional port. If the port is unspecified, it is treated as a wildcard port, which can also be indicated explicitly using *. The wildcard port matches any port. Collectively the entire set of addresses (including multiple results from DNS lookups) are called the vhost’s address set.&lt;/li&gt;
+  &lt;li&gt;Apache automatically discriminates on the basis of the HTTP Host header supplied by the client whenever the most specific match for an IP address and port combination is listed in multiple virtual hosts.&lt;/li&gt;
+  &lt;li&gt;The ServerName directive may appear anywhere within the definition of a server. However, each appearance overrides the previous appearance (within that server). If no ServerName is specified, the server attempts to deduce it from the server’s IP address. The first name-based vhost in the configuration file for a given IP:port pair is significant because it is used for all requests received on that address and port for which no other vhost for that IP:port pair has a matching ServerName or ServerAlias. It is also used for all SSL connections if the server does not support Server Name Indication.&lt;/li&gt;
+  &lt;li&gt;If a vhost has no ServerAdmin, Timeout, KeepAliveTimeout, KeepAlive, MaxKeepAliveRequests, ReceiveBufferSize, or SendBufferSize directive then the respective value is inherited from the main server. (That is, inherited from whatever the final setting of that value is in the main server.)&lt;/li&gt;
+  &lt;li&gt;The “lookup defaults” that define the default directory permissions for a vhost are merged with those of the main server. This includes any per-directory configuration information for any module.&lt;/li&gt;
+  &lt;li&gt;The per-server configs for each module from the main server are merged into the vhost server.&lt;/li&gt;
+  &lt;li&gt;Essentially, the main server is treated as “defaults” or a “base” on which to build each vhost. But the positioning of these main server definitions in the config file is largely irrelevant – the entire config of the main server has been parsed when this final merging occurs. So even if a main server definition appears after a vhost definition it might affect the vhost definition.&lt;/li&gt;
+  &lt;li&gt;Any vhost that includes the magic &lt;em&gt;default&lt;/em&gt; wildcard is given the same ServerName as the main server.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;answers&quot;&gt;Answers&lt;/h1&gt;
+&lt;h2 id=&quot;virtual-host-matching&quot;&gt;Virtual host matching&lt;/h2&gt;
 
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;Does Python multithreading run the program in multiple cores?&lt;/p&gt;
+&lt;p&gt;The server determines which vhost to use for a request as follows:&lt;/p&gt;
 
-    &lt;p&gt;No. Threads are spawned in the same process, which share common memory resources. Moreover CPython (default Python interpreter) uses a Global Interpreter Lock to make sure that only one thread can access Python code at a time.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;How to send/receive messages/notifications between threads?&lt;/p&gt;
+&lt;h4 id=&quot;ip-address-lookup&quot;&gt;IP address lookup&lt;/h4&gt;
 
-    &lt;p&gt;In Python, all threads access the same memory resources (from the same namespace). As a result, data (especially global data) can easily be accessed by all threads.&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
+&lt;p&gt;When the connection is first received on some address and port, the server looks for all the VirtualHost definitions that have the same IP address and port.&lt;/p&gt;
 
-&lt;h1 id=&quot;sources&quot;&gt;Sources&lt;/h1&gt;
+&lt;p&gt;If there are no exact matches for the address and port, then wildcard (*) matches are considered.&lt;/p&gt;
 
-&lt;p&gt;https://www.tutorialspoint.com/python/python_multithreading.htm
-https://pymotw.com/3/threading/
-https://docs.python.org/3.5/library/threading.html
-https://docs.python.org/3.5/library/multiprocessing.html
-http://jessenoller.com/2009/02/01/python-threads-and-the-global-interpreter-lock/&lt;/p&gt;
+&lt;p&gt;If no matches are found, the request is served by the main server.&lt;/p&gt;
+
+&lt;p&gt;If there are VirtualHost definitions for the IP address, the next step is to decide if we have to deal with an IP-based or a name-based vhost.&lt;/p&gt;
+
+&lt;h4 id=&quot;ip-based-vhost&quot;&gt;IP-based vhost&lt;/h4&gt;
+
+&lt;p&gt;If there is exactly one VirtualHost directive listing the IP address and port combination that was determined to be the best match, no further actions are performed and the request is served from the matching vhost.&lt;/p&gt;
+
+&lt;h4 id=&quot;name-based-vhost&quot;&gt;Name-based vhost&lt;/h4&gt;
+
+&lt;p&gt;If there are multiple VirtualHost directives listing the IP address and port combination that was determined to be the best match, the “list” in the remaining steps refers to the list of vhosts that matched, in the order they were in the configuration file.&lt;/p&gt;
+
+&lt;p&gt;If the connection is using SSL, the server supports Server Name Indication, and the SSL client handshake includes the TLS extension with the requested hostname, then that hostname is used below just like the Host: header would be used on a non-SSL connection. Otherwise, the first name-based vhost whose address matched is used for SSL connections. This is significant because the vhost determines which certificate the server will use for the connection.&lt;/p&gt;
+
+&lt;p&gt;If the request contains a Host: header field, the list is searched for the first vhost with a matching ServerName or ServerAlias, and the request is served from that vhost. A Host: header field can contain a port number, but Apache always ignores it and matches against the real port to which the client sent the request.&lt;/p&gt;
+
+&lt;p&gt;The first vhost in the config file with the specified IP address has the highest priority and catches any request to an unknown server name, or a request without a Host: header field (such as a HTTP/1.0 request).&lt;/p&gt;
+
+&lt;h2 id=&quot;source&quot;&gt;Source:&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;[Apache documentation][apache_virtual_host]&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://httpd.apache.org/docs/2.4/vhosts/&quot;&gt;apache_virtual_host&lt;/a&gt;&lt;/p&gt;
 </description>
-        <pubDate>Wed, 14 Dec 2016 23:43:55 +0700</pubDate>
-        <link>http://yourdomain.com/python/python-multithreading.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/python/python-multithreading.html</guid>
+        <pubDate>Sun, 15 Jan 2017 22:11:34 +0000</pubDate>
+        <link>http://yourdomain.com/apache/note/notes-on-apache.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/apache/note/notes-on-apache.html</guid>
         
         
-        <category>python</category>
+        <category>apache</category>
+        
+        <category>note</category>
         
       </item>
     
       <item>
-        <title>161209 - Haystack Django</title>
-        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding questions&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;What is the structure of Haystack?&lt;/li&gt;
-  &lt;li&gt;What are the requirements of Haystack?&lt;/li&gt;
-  &lt;li&gt;Use cases of Haystack?&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;ideas&quot;&gt;Ideas&lt;/h1&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;It is a portable interface, that can wraps around a search engine of choice (currently Haystack supports Solr, Elasticsearch, Whoosh, Xapian..).&lt;/li&gt;
-  &lt;li&gt;The idea is to write a single search interface, and you can freely use that interface to use any supported search engine.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;structure&quot;&gt;Structure&lt;/h1&gt;
-
-&lt;h3 id=&quot;searchindex&quot;&gt;SearchIndex&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Similar to Django Models.&lt;/li&gt;
-  &lt;li&gt;Determines what data should be placed in the search index. The search engine will only search for text that stored inside search index.&lt;/li&gt;
-  &lt;li&gt;Generally, a SearchIndex should be created for each type of Model to index.&lt;/li&gt;
-  &lt;li&gt;It will (optionally, but recommended) need a search index template in order to combine all the searchable model fields into index.&lt;/li&gt;
-  &lt;li&gt;The &lt;code&gt;SearchIndex&lt;/code&gt; should be stored in a &lt;code&gt;search_indexes.py&lt;/code&gt; file within the app that it applies to, so that Haystack can automatically pick it up&lt;/li&gt;
-  &lt;li&gt;To put the data from &lt;code&gt;Model&lt;/code&gt; to &lt;code&gt;SearchIndex&lt;/code&gt;, just run &lt;code&gt;python manage.py rebuild_index&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;searchview&quot;&gt;SearchView&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Haystack is a reusable app just like any other application you create in your project.&lt;/li&gt;
-  &lt;li&gt;It requires you to hook a url pattern for search, which will calls Haystack URLconf. Example: &lt;code&gt;(r&#39;^search/&#39;, include(&#39;haystack.urls&#39;)),&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;You should also create a search template for the search result page.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;interaction&quot;&gt;Interaction:&lt;/h3&gt;
-
-&lt;p&gt;User hits a query -&amp;gt; URLconf -&amp;gt; Invoke &lt;code&gt;SearchView&lt;/code&gt; -&amp;gt; &lt;code&gt;earchView&lt;/code&gt; is a subclass of Django’s &lt;code&gt;FormView&lt;/code&gt; -&amp;gt; &lt;code&gt;SearchForm&lt;/code&gt; is called -&amp;gt; make a query with &lt;code&gt;SearchQuerySet&lt;/code&gt; -&amp;gt; the search backend will handle search query from &lt;code&gt;SearchIndex&lt;/code&gt; -&amp;gt; returns the result to &lt;code&gt;SearchView&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h1 id=&quot;answer-questions&quot;&gt;Answer questions&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;What is the structure of Haystack?&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Haystack can be considered as a 3rd-party application.&lt;/li&gt;
-      &lt;li&gt;Follows the same Model (actually in this case Index) / View / Template architecture.&lt;/li&gt;
-      &lt;li&gt;Refer to the interaction refered above to see how it responds to user query&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;What are the requirements of Haystack?&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;It requires a backend search engine. Haystack does not actually do the searching, it is just a wrapper interface to the search engine&lt;/li&gt;
-      &lt;li&gt;At the bare minimum, you need to create a indexed text corpus that the Haystack can direct the search engine to search into; and you need to specify a search URL&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Use cases of Haystack?&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Search&lt;/li&gt;
-      &lt;li&gt;Autocomplete&lt;/li&gt;
-      &lt;li&gt;Faceting&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;reference&quot;&gt;Reference:&lt;/h1&gt;
-&lt;p&gt;http://django-haystack.readthedocs.io/en/v2.5.1/index.html&lt;/p&gt;
+        <title>170115 - Notes on Apache Configuration</title>
+        <description>&lt;p&gt;Core configuration: https://httpd.apache.org/docs/2.4/mod/core.html
+Access configuration: https://httpd.apache.org/docs/2.4/mod/mod_access_compat.html
+Some Apache security tips: http://www.tecmint.com/apache-security-tips/&lt;/p&gt;
 </description>
-        <pubDate>Fri, 09 Dec 2016 22:29:33 +0700</pubDate>
-        <link>http://yourdomain.com/django/haystack-django.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/django/haystack-django.html</guid>
+        <pubDate>Sun, 15 Jan 2017 21:10:28 +0000</pubDate>
+        <link>http://yourdomain.com/apache/notes-on-apache-configuration.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/apache/notes-on-apache-configuration.html</guid>
+        
+        
+        <category>apache</category>
+        
+      </item>
+    
+      <item>
+        <title>170115 - Notes on deploying Django</title>
+        <description>&lt;h1 id=&quot;deploy-with-ubuntu-on-apache&quot;&gt;Deploy with Ubuntu on Apache&lt;/h1&gt;
+
+&lt;p&gt;The note below works as of January 2017 and uses Ubuntu 14.04.4 LTS, Apache 2.4, Python 3.4.3, Django 1.10.3, and mod_wsgi 4.5.13. Other versions of any of these softwares might work or not work.&lt;/p&gt;
+
+&lt;h2 id=&quot;step-by-step&quot;&gt;Step-by-step&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;[Create][create_user] a non-root user account with sudo privilege, and SSH to that non-root account
+    &lt;ul&gt;
+      &lt;li&gt;[User privilege][linux_user_privilege]&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Install these packages on Ubuntu:
+    &lt;ul&gt;
+      &lt;li&gt;python3-pip&lt;/li&gt;
+      &lt;li&gt;libapache2-mod-wsgi-py3 (this is a binary mod_wsgi compiled with Python 3.4.0, so if you use other versions of Python, e.g. 3.4.!0, 3.!4, mod_wsgi might not work, and it would be better to compile from source - see below)&lt;/li&gt;
+      &lt;li&gt;libxml2, libxml2-dev, libxlst1.1, libxslt1-dev, libjpeg-turbo8, libjpeg-turbo8-dev, libpng-dev, libfreetype6-dev (these are packages that my Django app requires, you might not need, so you can skip it)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Install virtualenv on Ubuntu: &lt;code&gt;sudo pip3 install virtualenv&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Create a new environment: &lt;code&gt;virtualenv -p python3.4 [env_name]&lt;/code&gt; and activate it (&lt;code&gt;source activate [env_name]/bin/activate&lt;/code&gt;)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Install django (1.10.3): &lt;code&gt;pip3 install django=1.10.3&lt;/code&gt;, start a test project, migrate, create super user, collect static, and run it with &lt;code&gt;./manage.py runserver 0.0.0.0:8000&lt;/code&gt;. The test site should show up when connected using the browser to [IP address]:8000.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Configure Apache and mod_wsgi:
+    &lt;ul&gt;
+      &lt;li&gt;Create a text file inside &lt;code&gt;/etc/apache2/sites-available/&lt;/code&gt;. In this example, let’s call it &lt;code&gt;abc.conf&lt;/code&gt;, and add the following:&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
+WSGISocketPrefix /var/run/wsgi
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;VirtualHost&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;*:80&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    Alias /static /path/to/static/folder
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;Directory&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;/path/to/static/folder&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+            Order allow,deny
+            Allow from all
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Directory&amp;gt;&lt;/span&gt;
+
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;Directory&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;/path/to/your/django/app/folder&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+            Require all granted
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Directory&amp;gt;&lt;/span&gt;
+
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;Directory&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;/path/to/folder/that/contains/wsgi.py&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;Files&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;wsgi.py&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+                    Require all granted
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Files&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/Directory&amp;gt;&lt;/span&gt;
+
+    WSGIDaemonProcess [any_name] python-path=/path/to/your/django/app/folder:/path/to/your/python/site-packages python-home=/path/to/your/virtual/env
+    WSGIProcessGroup [any_name]
+    WSGIScriptAlias / /path/to/your/wsgi.py
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/VirtualHost&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Explanation of the above configuration:
+    &lt;ul&gt;
+      &lt;li&gt;LoadModule: load mod_wsgi module, so that WSGI directives will be recognized by Apache&lt;/li&gt;
+      &lt;li&gt;WSGISocketPrefix: see errors section below&lt;/li&gt;
+      &lt;li&gt;ErrorLog, CustomLog: directory where the log files will be stored&lt;/li&gt;
+      &lt;li&gt;Alias /static /path/to/static/folder and &amp;lt;Directory …static/folder&amp;gt;…&amp;lt;/Directory&amp;gt;: serve static files, and enable read-write permissions on folder contain static files&lt;/li&gt;
+      &lt;li&gt;&amp;lt;Directory …/app/folder/&amp;gt;…&amp;lt;/Directory&amp;gt;: allow access the folder that contains all execution files&lt;/li&gt;
+      &lt;li&gt;&amp;lt;Directory …/wsig.py/&amp;gt;…&amp;lt;/Directory&amp;gt;: allow access to the wsgi.py file&lt;/li&gt;
+      &lt;li&gt;WSGIDaemonProcess: basically, the site will be served by a daemon process (anytime Apache receives request that directed to this virtual host, it will pass the request to a wsgi process, this process will execute and return back the result). It will need several arguments, but shown above are
+        &lt;ul&gt;
+          &lt;li&gt;the name of daemon process&lt;/li&gt;
+          &lt;li&gt;path to your python code, the site-packages that contains all packages that your Python will need (followed by colon)&lt;/li&gt;
+          &lt;li&gt;the path to your virtual environment (so that WSGI can run the code with the correct Python version)&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;WSGIProcessGroup: same name as the daemonprocess above&lt;/li&gt;
+      &lt;li&gt;WSGIScriptAlias: anything from / (the root domain) will be handled by wsgi.py&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Symlink &lt;code&gt;abc.conf&lt;/code&gt; to sites-enabled (&lt;code&gt;sudo a2ensite [conf_name]&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Handle permission issues
+    &lt;ul&gt;
+      &lt;li&gt;Give Apache access and group ownership to sqlite database&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;chmod 664 /path/to/db.sqlite3/file&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code&gt;sudo chown :www-data /path/to/db.sqlite3/file&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;Give Apache group ownership to the Django app files: &lt;code&gt;sudo chown :www-data /path/to/project&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Restart Apache: &lt;code&gt;sudo service apache2 restart&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;errors&quot;&gt;Errors&lt;/h2&gt;
+
+&lt;p&gt;During installing and configuring mod_wsgi, several errors arise:&lt;/p&gt;
+
+&lt;h4 id=&quot;mismatch-in-compiled-python-and-runtime-python&quot;&gt;Mismatch in compiled Python and runtime Python&lt;/h4&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;mod_wsgi: Compiled &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; Python/3.4.0.
+mod_wsgi: Runtime using Python/3.4.3.&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and &lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;Exception ignored in: &amp;lt;module &lt;span class=&quot;s1&quot;&gt;&amp;#39;threading&amp;#39;&lt;/span&gt; from &lt;span class=&quot;s1&quot;&gt;&amp;#39;/usr/lib/python3.4/threading.py&amp;#39;&lt;/span&gt;&amp;gt;
+Traceback &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;most recent call last&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;:
+    File &lt;span class=&quot;s2&quot;&gt;&amp;quot;/usr/lib/python3.4/threading.py&amp;quot;&lt;/span&gt;, line 1288, in _shutdown
+        assert tlock is not None
+AssertionError:&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;In my case, I use libapache2-mod-wsgi-py3, which is compiled for Python 3.4.0. However, in my environment, I use Python 3.4.3. So I uninstalled libapache2-mod-wsgi-py3 and compile mod_wsgi from source against the correct Python version (more information on compile from source below)&lt;/p&gt;
+
+&lt;h4 id=&quot;permissions-issue&quot;&gt;Permissions issue&lt;/h4&gt;
+
+&lt;p&gt;(13)Permission denied: [client ::1:36568] mod_wsgi (pid=14185): Unable to connect to WSGI daemon process ‘[name_here]’ on ‘/var/run/apache2/wsgi.[…].sock’ after multiple attempts&lt;/p&gt;
+
+&lt;p&gt;or &lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;(13)Permission denied: [client ::1:37840] mod_wsgi (pid=20690): Unable to connect to WSGI daemon process &#39;cpp_test&#39; on &#39;/var/run/apache2/wsgi.[...].sock&#39; as user with uid=[...].&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;or&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;(2)No such file or directory: mod_wsgi (pid=22808): Couldn&#39;t bind unix domain socket &#39;/etc/apache2/run/wsgi.[...].sock&#39;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Refer &lt;a href=&quot;http://modwsgi.readthedocs.io/en/develop/user-guides/configuration-issues.html&quot;&gt;here&lt;/a&gt;. But the main point is Apache process communicates with WSGI daemon process through UNIX sockets (basically files on disk). If the folder contains those files don’t have read/write permission, communication halts. E.g. in the example above Apache cannot read/write on /var/run/apache2. As a result, we need to assign a different location, by:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;WSGISocketPrefix run/wsgi&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Some Linux distributions (including Ubuntu) prohibit read/write on run, so use this instead:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;WSGISocketPrefix /var/run/wsgi&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;cannot-load-modwsgiso&quot;&gt;Cannot load mod_wsgi.so&lt;/h4&gt;
+
+&lt;p&gt;&lt;code&gt;Cannot load modules/mod_wsgi.so into server: /etc/apache2/modules/mod_wsgi.so: cannot open shared object file: No such file or directory&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;This error probably comes from wsgi.conf and wsgi.load not symlinked in mods-enabled. To solve it:
+- &lt;code&gt;sudo a2enmod wsgi&lt;/code&gt;
+or 
+- &lt;code&gt;LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so&lt;/code&gt; (in configuration file above)&lt;/p&gt;
+
+&lt;h2 id=&quot;compile-from-sources&quot;&gt;Compile from sources&lt;/h2&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;wget -q &lt;span class=&quot;s2&quot;&gt;&amp;quot;https://github.com/GrahamDumpleton/mod_wsgi/archive/4.5.13.tar.gz&amp;quot;&lt;/span&gt;
+tar -xzf &lt;span class=&quot;s1&quot;&gt;&amp;#39;4.5.13.tar.gz&amp;#39;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ./mod_wsgi-4.5.13
+./configure --with-python&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/path/to/the/right/python/executable
+make
+make install&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Depending on the Apache version that apache2-dev library should be installed - &lt;code&gt;sudo apt-get install apache2-dev&lt;/code&gt;. Otherwise, during ./configure, something like this might appear &lt;code&gt;apxs: command not found&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Then mod_wsgi should be found in these directories:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;/etc
+/etc/apache2
+/etc/apache2/mods-available
+/etc/apache2/mods-available/wsgi.conf
+/etc/apache2/mods-available/wsgi.load
+/usr
+/usr/lib
+/usr/lib/apache2
+/usr/lib/apache2/modules
+/usr/lib/apache2/modules/mod_wsgi.so-3.4
+/usr/lib/apache2/modules/mod_wsgi.so&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;This note contains information from the following sources:
+- [mod_wsgi official documentation][mod_wsgi_doc]
+- [How to serve Django applications with Apache and mod_wsgi on Ubuntu 14.04][digital_ocean_tut]
+- [Django resources][django_resource]&lt;/p&gt;
+
+&lt;p&gt;Other sources:
+- This can be an easier way to install [mod_wsgi][mod_wsgi_pip] (haven’t tried yet)
+- [Set up uwsgi and nginx to serve Python apps on Ubuntu][uwsgi_nginx]
+- [How to configure Apache Web Server on an Ubuntu or Debian VPS][apache_ubuntu]&lt;/p&gt;
+
+&lt;p&gt;http://stackoverflow.com/questions/2285879/how-do-i-redirect-domain-com-to-www-domain-com-under-django&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04#step-one-—-root-login&quot;&gt;create_user&lt;/a&gt;
+&lt;a href=&quot;https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-apache-and-mod_wsgi-on-ubuntu-14-04&quot;&gt;digital_ocean_tut&lt;/a&gt;
+&lt;a href=&quot;https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file-on-ubuntu-and-centos&quot;&gt;linux_user_privilege&lt;/a&gt;
+&lt;a href=&quot;http://modwsgi.readthedocs.io/en/develop/user-guides/installation-issues.html&quot;&gt;mod_wsgi_doc&lt;/a&gt;
+&lt;a href=&quot;https://pypi.python.org/pypi/mod_wsgi&quot;&gt;mod_wsgi_pip&lt;/a&gt;
+&lt;a href=&quot;https://www.digitalocean.com/community/tutorials/how-to-set-up-uwsgi-and-nginx-to-serve-python-apps-on-ubuntu-14-04&quot;&gt;uwsgi_nginx&lt;/a&gt;
+&lt;a href=&quot;https://www.digitalocean.com/community/tutorials/how-to-configure-the-apache-web-server-on-an-ubuntu-or-debian-vps&quot;&gt;apache_ubuntu&lt;/a&gt;
+&lt;a href=&quot;https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/modwsgi/&quot;&gt;django_resource&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sun, 15 Jan 2017 01:17:06 +0000</pubDate>
+        <link>http://yourdomain.com/django/notes-on-deploying-django.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/django/notes-on-deploying-django.html</guid>
         
         
         <category>django</category>
@@ -297,151 +423,201 @@ http://jessenoller.com/2009/02/01/python-threads-and-the-global-interpreter-lock
       </item>
     
       <item>
-        <title>161206 - Using AWS S3</title>
-        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding Questions&lt;/h1&gt;
+        <title>170113 - Notes on Django Models</title>
+        <description>&lt;p&gt;In case that you want to modify &lt;code&gt;ManyToManyField&lt;/code&gt;, the best bet is to:&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;How to use S3 to host static files?&lt;/li&gt;
-  &lt;li&gt;Is there any way to limit which files can be downloaded?&lt;/li&gt;
-  &lt;li&gt;How to cd into S3?&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;overview&quot;&gt;Overview&lt;/h1&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Structurally organized by buckets &amp;gt; objects (all of these are referred as resources)
-    &lt;ul&gt;
-      &lt;li&gt;A bucket can be thought of as a scope/environment to store related data&lt;/li&gt;
-      &lt;li&gt;Objects are data files&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;Only resource owner (AWS account that creates the resource) has access to data. The resource owner can grant others (e.g. other AWS account, other IAM in the same AWS, application throughg IAM roles) permission to access the resource.&lt;/li&gt;
-  &lt;li&gt;Data operations in S3:
-    &lt;ul&gt;
-      &lt;li&gt;AWS S3 console&lt;/li&gt;
-      &lt;li&gt;AWS CLI: &lt;a href=&quot;http://docs.aws.amazon.com/cli/latest/reference/s3/index.html&quot;&gt;here&lt;/a&gt; and &lt;a href=&quot;http://docs.aws.amazon.com/cli/latest/reference/s3api/index.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;Programming interface&lt;/li&gt;
-      &lt;li&gt;REST API calls    &lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;Create bucket &lt;a href=&quot;http://docs.aws.amazon.com/AmazonS3/latest/UG/CreatingaBucket.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;Modify permission &lt;a href=&quot;http://docs.aws.amazon.com/AmazonS3/latest/UG/EditingBucketPermissions.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;Upload objects and set individual permission &lt;a href=&quot;http://docs.aws.amazon.com/AmazonS3/latest/UG/UploadingObjectsintoAmazonS3.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;answers&quot;&gt;Answers:&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;How to use S3 to host static files?&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Refer &lt;a href=&quot;https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;Short answer: set up bucket, get ARN, collect Django static files, set CORS&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Is there anyway to limit which files can be downloaded? &lt;strong&gt;Permission can be set manually for each file, so &lt;em&gt;yes&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;How to cd into S3? &lt;strong&gt;Refer CLI above&lt;/strong&gt;.&lt;/p&gt;
-  &lt;/li&gt;
+  &lt;li&gt;Create a backup of the the field’s through table&lt;/li&gt;
+  &lt;li&gt;Delete the ManyToManyField, and migrate this change to the database. This will drop the &lt;code&gt;ManyToManyField&lt;/code&gt; from the database, and will also drop the through table inside the database (if you use default through table)&lt;/li&gt;
+  &lt;li&gt;Add back ManyToManyField inside your model, with your desired options, and migrate it back to the database.&lt;/li&gt;
 &lt;/ol&gt;
 
 </description>
-        <pubDate>Tue, 06 Dec 2016 08:06:43 +0700</pubDate>
-        <link>http://yourdomain.com/aws/aws-s3.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/aws/aws-s3.html</guid>
+        <pubDate>Fri, 13 Jan 2017 16:45:27 +0000</pubDate>
+        <link>http://yourdomain.com/django/notes-on-django-models.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/django/notes-on-django-models.html</guid>
         
         
-        <category>aws</category>
+        <category>django</category>
         
       </item>
     
       <item>
-        <title>161205 - Continue with deploying on EB</title>
-        <description>&lt;p&gt;So here I am still not being able to deploy CPP to EB.&lt;/p&gt;
+        <title>170112 - Notes on Django Templates</title>
+        <description>&lt;h1 id=&quot;executing-custom-template-tags-and-filters-inside-textfield&quot;&gt;Executing custom template tags and filters inside TextField&lt;/h1&gt;
 
-&lt;p&gt;These are the things I should pay special consideration later if I want to redeploy:&lt;/p&gt;
+&lt;h2 id=&quot;toy-problem&quot;&gt;Toy problem:&lt;/h2&gt;
+
+&lt;p&gt;I create a blog with Django, and I use a Django model’s TextField to store the content of each blog post in the database. In the blog posts, I might want to include some images, but since manually writing &lt;code&gt;&amp;lt;img src=&quot;...&quot; style=&quot;...&quot; class=&quot;...&quot; /&amp;gt;&lt;/code&gt; for each image is too clunkie and error-prone (especially for non-technical people - my mom), I would want a simpler way to insert images. One way to do that is to create a custom Django’s template tag, that automatically render image url to &lt;code&gt;&amp;lt;img.../&amp;gt;&lt;/code&gt;, e.g &lt;code&gt;{% make_image http://domain.com/img1.jpg left %}&lt;/code&gt; -&amp;gt; &lt;code&gt;&amp;lt;img src=&quot;http://domain.com/img1.jpg&quot; class=&quot;left&quot; /&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;key-reasons-on-why-it-is-possible&quot;&gt;Key reasons on why it is possible:&lt;/h2&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Environment variables&lt;/li&gt;
-  &lt;li&gt;All of the settings (the last time, production settings really complicate on what things are important, waht things are not, what things can potentially break the system)&lt;/li&gt;
-  &lt;li&gt;Database&lt;/li&gt;
+  &lt;li&gt;Any string object can be considered as a template -&amp;gt; so the model’s TextFields can also be rendered as a template&lt;/li&gt;
+  &lt;li&gt;Django provides the ability to create custom tags and filters -&amp;gt; so we can create the &lt;code&gt;make_image&lt;/code&gt; tag of our own to perform the conversion&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;This time I should try to basically replicate my local environment on to EB. Just use local settings, should not care about production settings for now.&lt;/p&gt;
+&lt;h2 id=&quot;each-components&quot;&gt;Each components&lt;/h2&gt;
 
-&lt;p&gt;Remember to disable SECURE_SSL_REDIRECT (set to False) if you don’t have Certificate or if you are in your development environment&lt;/p&gt;
+&lt;h3 id=&quot;custom-template-tags&quot;&gt;Custom template tags&lt;/h3&gt;
 
-&lt;p&gt;So actually it worked. The reason I could not access the site last night is because of automatic SSL redirection. Even after I disabled SSL redirection, the browser (possibly because of header cache) stil automatically forwards my http request as https to the server, which creates an infinite loop. That’s why the site takes forever to load. The site works fine if I connect in Incognito mode and after I flush the cache.&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Create a directory to store your tags. By default, this directory should be named &lt;code&gt;templatetags&lt;/code&gt;, and located inside one of the registered apps in &lt;code&gt;settings.INSTALLED_APPS&lt;/code&gt;. Also create an &lt;code&gt;__init__.py&lt;/code&gt; inside that &lt;code&gt;templatetags&lt;/code&gt;, so that Python can import anything inside &lt;code&gt;templatetags&lt;/code&gt; as a module.&lt;/li&gt;
+  &lt;li&gt;Create a Python file (in this example I would name it &lt;code&gt;extra_html.py&lt;/code&gt;). The name of that Python file will be the name of the template modules (to load this module, just use &lt;code&gt;{% load extra_html %}&lt;/code&gt; inside your template file). It’s important to name that file distinctly to avoid clash with other installed template tags/filters module of the same name. For example, if you have 2 apps, each with the following structure (respectively): &lt;code&gt;app1/templatetags/abc.py&lt;/code&gt; and &lt;code&gt;app2/templatetags/abc.py&lt;/code&gt;, then when you call &lt;code&gt;{% load abc %}&lt;/code&gt;, Django will get confused on which &lt;code&gt;abc&lt;/code&gt; module you want to load. Also keep in mind to avoid naming conflicts with template modules of 3rd party app you use in your project.&lt;/li&gt;
+  &lt;li&gt;Create &lt;code&gt;make_image&lt;/code&gt; tag. As of version 1.10, the Django template system runs in 2 steps:
+ a. compiling: parse the template to find any instance of &lt;code&gt;{% ... %}&lt;/code&gt; and &lt;code&gt;{{ ... }}&lt;/code&gt;, and
+ b. rendering: compute and render the result of those &lt;code&gt;{% ... %}&lt;/code&gt;, &lt;code&gt;{{ ... }}&lt;/code&gt; instances.&lt;/li&gt;
+  &lt;li&gt;Compile code:&lt;/li&gt;
+&lt;/ol&gt;
 
-&lt;p&gt;One more thing to note, EB actually uses the latest local git commit to populate the server. As a result, if you make some changes in your local repository and forget to commit those changes, they will not be uploaded and reflected on server. Also keeps an eye on the .gitignore file. There might be some files that make the site works on your local server, but because they are in .gitignore, they will not be uploaded to AWS EB.&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;django&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;django.utils.html&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;format_html&lt;/span&gt;
 
-&lt;p&gt;Haven’t yet call collectstatic, but maybe not now, it doesn’t really matter as the static files are loaded in local setup.&lt;/p&gt;
+    &lt;span class=&quot;n&quot;&gt;register&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Library&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
 
-&lt;p&gt;Several ways for improvement:&lt;/p&gt;
+    &lt;span class=&quot;nd&quot;&gt;@register.tag&lt;/span&gt; 
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;make_image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;tag_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;location&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split_contents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt; &lt;span class=&quot;ne&quot;&gt;ValueError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TemplateSyntaxError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;{} tag requires 2 arguments: url and &amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;location&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;contents&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MakeImage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Use S3 to deliver static files instead of server&lt;/li&gt;
-  &lt;li&gt;Create a superuser and an admin interface&lt;/li&gt;
-  &lt;li&gt;cd to the app directory in ec2’s .bash_profile, also activate the virtual environment
-    &lt;ul&gt;
-      &lt;li&gt;&lt;code&gt;cd /opt/python/current/app&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;source /opt/python/run/venv/bin/activate&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;code&gt;source /opt/python/current/env&lt;/code&gt;ls&lt;/li&gt;
-    &lt;/ul&gt;
+  &lt;li&gt;&lt;code&gt;register&lt;/code&gt; helps Django template system to find custom template tags and filters (it is used right below with decorator &lt;code&gt;@register.tag&lt;/code&gt; to register &lt;code&gt;make_image&lt;/code&gt; -&amp;gt; so that you can use and Django can recognize &lt;code&gt;{% make_image ... %}&lt;/code&gt; in your Django templates)&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;make_image&lt;/code&gt; takes 2 arguments: the first one is the parser that parses your template, and the second one is a string right after &lt;code&gt;{%  &lt;/code&gt; and before ` %}`.&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;.split_contents()&lt;/code&gt; will split the string from spaces, e.g &lt;code&gt;&quot;make_image http://domain.com/image1 middle&quot;&lt;/code&gt; -&amp;gt; &lt;code&gt;[&quot;make_image&quot;, &quot;http://domain.com/image1&quot;, &quot;middle&quot;]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;MakeImage&lt;/code&gt; is a rendering class (will be shown later), that takes the url and the location to render into appropriate html tag
+    &lt;ol&gt;
+      &lt;li&gt;Render code:&lt;/li&gt;
+    &lt;/ol&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Wow, so it works in the end. Now to summarize why does it take me 3 days to make the site up:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MakeImage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;sd&quot;&gt;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;sd&quot;&gt;            Initialize information needed to create image&lt;/span&gt;
+&lt;span class=&quot;sd&quot;&gt;            &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+            &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;
+            &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;location&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;location&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;sd&quot;&gt;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;sd&quot;&gt;            Given a template node initialized with the above information, return&lt;/span&gt;
+&lt;span class=&quot;sd&quot;&gt;            a representation.&lt;/span&gt;
+&lt;span class=&quot;sd&quot;&gt;            &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;element&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;&amp;lt;img src=&amp;quot;{}&amp;quot; class=&amp;quot;image_{}&amp;quot;&amp;gt;&amp;#39;&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;format_html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;element&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Environment variables. Most of the deployments failed because of unsetted environment variables&lt;/li&gt;
-  &lt;li&gt;Differences in MacOS and Linux environment. MacOS (or the very useful Homebrew &amp;amp; Anaconda) natively supports some libraries that Linux does not. As a result, those libraries are not included when you export requirements.txt. As a result, deployment with that requirements.txt file on Linux will fail sometimes. Also, I am new to Linux and its various kinds of distribution, so it takes some time to install the appropriate libraries (whether in Fedora, Ubuntu, CentOS, or Amazon Linux…)&lt;/li&gt;
-  &lt;li&gt;Security settings. The reason my RDS does not work is because the default security settings do not allow accessing the database over Internet TCP. After changing the settings to include incoming access from my IP address, I was able to create database and connect it to my application. Sounds silly, but it does take some basic knowledge on how these components are integrated to each other.&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;template.Node&lt;/code&gt;: all compiled/found Django template tags (&lt;code&gt;{% ... %}&lt;/code&gt;) will be rendered as an instance of &lt;code&gt;template.Node&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;render(self, context)&lt;/code&gt;: this function will be called by the Django template system to render tags.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Many of the above problems come from:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Put the tag inside your TextField: suppose you want to include image in your blog post, instead of writing the full HTML img tag, you can just write &lt;code&gt;{% make_image http://example.com/image1 center %}&lt;/code&gt; in your TextField and you will get &lt;code&gt;&amp;lt;img src=&quot;http://example.com/image1&quot; class=&quot;image_center&quot; /&amp;gt;&lt;/code&gt; when your TextField is rendered. But… it does not work yet, as you have to make Django render your TextField as if it is a template (so that it can compile and render &lt;code&gt;{% make_image ... %}&lt;/code&gt;, otherwise this code will show up in your blog and no image appears)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;stringtext-object-as-a-template&quot;&gt;String/text object as a template&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Objective: we will create another custom tag to evaluate the TextField as template. We will call this custom tag &lt;code&gt;render&lt;/code&gt;. So: &lt;code&gt;\{\% render object.textfield \%\}&lt;/code&gt; will render &lt;code&gt;object.textfield&lt;/code&gt; as a template, hence can compile and render &lt;code&gt;make_image&lt;/code&gt; tag inside it.&lt;/li&gt;
+  &lt;li&gt;In the same Python file above, add:&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RenderTextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;variable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;variable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Variable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;variable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;variable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;resolve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                        &lt;span class=&quot;s&quot;&gt;&amp;quot;{}{}&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;{&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;% lo&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;ad extra_html %}&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;VariableDoesNotExist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TemplateSyntaxError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Cannot load&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;variable&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@register.tag&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;tag_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;variable&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split_contents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt; &lt;span class=&quot;ne&quot;&gt;ValueError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TemplateSyntaxError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                        &lt;span class=&quot;s&quot;&gt;&amp;quot;{} tag requires a single argument, which is a block of &amp;quot;&lt;/span&gt;
+                        &lt;span class=&quot;s&quot;&gt;&amp;quot;string&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;token&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;contents&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RenderTextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;variable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;Sloppiness and carelessness: every environment variable counts even if I think otherwise. One reason is because I build on top of other people’s codes, sometimes there are environment variables that seem not really relate to my targeted purpose, but they serve those codes. I don’t write those codes, so I miss out on some edge cases where those seemingly unrelated variables support their code.&lt;/li&gt;
-  &lt;li&gt;Unwillingness to look at the logs. This is indefensible. Sometimes I just got really mad at the system that I refuesed to look at what it said&lt;/li&gt;
+  &lt;li&gt;structurally, it looks the same as &lt;code&gt;make_image&lt;/code&gt; tag: we will have &lt;code&gt;render&lt;/code&gt; as a custom template tag, that Django can compile whenever it finds &lt;code&gt;\{\% render ... \%\}&lt;/code&gt;, and Django will render the tag with &lt;code&gt;RenderTextField.render(context)&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;split_contents&lt;/code&gt;: after split_contents, we will get [“render”, “object.textfield”]&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;template.Variable&lt;/code&gt;: since we want to treat object.textfield as a variable, and not a simple text “object.textfield”, we will need to wrap it inside &lt;code&gt;template.Variable&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;content = self.variable.resolve(context)&lt;/code&gt;: Django takes the context to get the value of &lt;code&gt;object.textfield&lt;/code&gt;. Here, &lt;code&gt;content&lt;/code&gt; will be a string that is a value of &lt;code&gt;object.textfield&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;t = template.Template(&quot;{}{}&quot;.format(&quot;{% load extra_html %}&quot;, content))&lt;/code&gt;: the string “{% load extra_html %}…..” will be rendered as a template. We will need the “{% load extra_html %}” appear before the string our object.textfield value, so that the &lt;code&gt;make_image&lt;/code&gt; tag inside it can be recognized by the Django template system&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;Things to remember:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Put everything inside your template, example:&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;{% load extra_html %}
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;title&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;object.title&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;content&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;{% render object.textfield %}&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;performance-and-security-concern&quot;&gt;Performance and security concern&lt;/h2&gt;
+
+&lt;p&gt;This is a simple example of using custom tags and filters. However, keep in mind that:
+    - you would want to autoescape the string object (e.g. TextField, CharField,…), especially when they come from users
+    - don’t be too reliant on template tags/filters. It slows down site performance. Beside, it’s good to keep the logic outside of templates&lt;/p&gt;
+
+&lt;h2 id=&quot;source&quot;&gt;Source:&lt;/h2&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;In programming, everything must be perfect, a single error can destroy your application, many small errors can significantly complicate the matter and wreck havoc to your program in ways that are very confusing (e.g. no error stack trace, just doesn’t work…)&lt;/li&gt;
-  &lt;li&gt;Take note of whatever you make. Commit a lot. It will save you whenever strange behavior arises (which sadly more often than expected)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.djangoproject.com/en/dev/howto/custom-template-tags/&quot;&gt;Custom template tags/filters documentation&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.djangoproject.com/en/1.10/ref/templates/builtins/&quot;&gt;Built-in template tags/filters documentation&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-        <pubDate>Mon, 05 Dec 2016 15:56:12 +0700</pubDate>
-        <link>http://yourdomain.com/blog,/aws/blog.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/blog,/aws/blog.html</guid>
+        <pubDate>Thu, 12 Jan 2017 18:31:48 +0000</pubDate>
+        <link>http://yourdomain.com/django/notes-on-django-templates.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/django/notes-on-django-templates.html</guid>
         
         
-        <category>blog,</category>
-        
-        <category>aws</category>
+        <category>django</category>
         
       </item>
     
       <item>
-        <title>161204 - Fruitless EB</title>
-        <description>&lt;p&gt;Yesterday when I cannot access the database from terminal, I sense there must be something wrong with the authorization. Today after careful look at VPC security group, it turns out I should add my own IP address to database security group.&lt;/p&gt;
+        <title>170106 - Blog</title>
+        <description>&lt;p&gt;Today I upgraded cpp a little bit. Certain things that I learned:&lt;/p&gt;
 
-&lt;p&gt;It’s a little bit weird that I cannot even access the website homepage deployed in EB. Even though currently it lacks database access, the homepage does not access the database, hence it should show up. Hmmm or maybe because I use a custom homepage template that requires some database access?&lt;/p&gt;
-
-&lt;p&gt;The django creator template nags about having to fillout aws secret key. Why? The secret key is irrelevant, the site should work even without secret key.&lt;/p&gt;
-
-&lt;p&gt;After some time, it seems my Django application needs AWS secret identity and S3 bucket name in order to populate static media files. After providing those parameters and modify the database setting HOST to the endpoints, the site connects, but throws an erorr about ALLOWED_HOSTS, which seems the previous problems might be solved&lt;/p&gt;
-
-&lt;p&gt;Added EB URL to ALLOWED_HOSTS, the site does not respond at all.&lt;/p&gt;
-
-&lt;p&gt;Checking S3, the files are not stored there.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;In Django, when defining Model, you’d better leave .Meta.db_table (table name) as it is by default. If you set table name yourself, the name you pick would have some chances to collide with Django’s default table name for other model (e.g. through table for ManyToMany relationship), which would make tracing the bugs a little bit time consuming. &lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;django.contrib.staticfiles&lt;/code&gt; can discover static files if &lt;code&gt;debug&lt;/code&gt; is set to &lt;code&gt;True&lt;/code&gt;, which in itself poses a security risk, not to mention that it is inefficient. To use &lt;code&gt;django.contrib.staticfiles&lt;/code&gt; without setting &lt;code&gt;debug&lt;/code&gt; to &lt;code&gt;True&lt;/code&gt;, manually modify Apache and wsgi to serve static files at &lt;code&gt;STATIC_ROOT&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Include &lt;code&gt;django.contrib.staticfiles&lt;/code&gt; to run &lt;code&gt;python manage.py collectstatic&lt;/code&gt; to collect all static files inside all applications (both your apps and 3rd-party apps) into &lt;code&gt;STATIC_ROOT&lt;/code&gt; directory. If you serve static files on the same server that runs Django, then you would probably wants to use &lt;code&gt;collectstatic&lt;/code&gt; on the server.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;You would also want to create a folder to contain project-level files and information. Don’t just store those project-level files directly inside project folder, that would become messy really fast.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;It’s best if your project’s development structure resembles production structure. 2 main benefits: (1) when your development environment does not work, you know the production environment also does not work, and if you can fix the problem in your own development environment, then it’s highly likely that the same problem in production environment would also be fixed, (2) make development environment resemble production environment will force you to keep your development environment organized.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
 </description>
-        <pubDate>Mon, 05 Dec 2016 00:24:33 +0700</pubDate>
+        <pubDate>Fri, 06 Jan 2017 01:44:58 +0000</pubDate>
         <link>http://yourdomain.com/blog/blog.html</link>
         <guid isPermaLink="true">http://yourdomain.com/blog/blog.html</guid>
         
@@ -451,159 +627,65 @@ http://jessenoller.com/2009/02/01/python-threads-and-the-global-interpreter-lock
       </item>
     
       <item>
-        <title>161204 - Using AWS RDS</title>
-        <description>&lt;h1 id=&quot;guiding-questions&quot;&gt;Guiding Questions&lt;/h1&gt;
+        <title>161228 - blog</title>
+        <description>&lt;p&gt;Incorporate TinyMCE to cpp using django-tinymce.&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Before creating a database, what criteria to consider?&lt;/li&gt;
-  &lt;li&gt;What are the authentication and authorization steps to connect to database?&lt;/li&gt;
-  &lt;li&gt;In what way, and how, to connect to database (both manually and through code)?&lt;/li&gt;
-  &lt;li&gt;Can source code in other part of AWS services access to database? Can source code in personal computer access to AWS RDS?&lt;/li&gt;
-  &lt;li&gt;If source code from personal computer or other part of AWS can access to database, what is the security measure?&lt;/li&gt;
-  &lt;li&gt;If data begins to exceed storage, how to scale with AWS RDS?&lt;/li&gt;
-  &lt;li&gt;Is there any backup support mechanism from AWS?&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;h1 id=&quot;why-rds&quot;&gt;Why RDS&lt;/h1&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Not bundled CPU, memory… so it would be easier to scale&lt;/li&gt;
-  &lt;li&gt;Additional database security and management service&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;components&quot;&gt;Components&lt;/h1&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;DB instances&lt;/li&gt;
-  &lt;li&gt;Region and availability zones&lt;/li&gt;
-  &lt;li&gt;Security groups&lt;/li&gt;
-  &lt;li&gt;DB parameter groups&lt;/li&gt;
-  &lt;li&gt;DB option groups&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;db-instances&quot;&gt;DB instances&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Is an isolated database &lt;em&gt;environment&lt;/em&gt; in the cloud&lt;/li&gt;
-  &lt;li&gt;An instance can contain multiple user-created databases&lt;/li&gt;
-  &lt;li&gt;Each DB instance runs a DB engine (currently MySQL, Maria, Postgre, Oracle &amp;amp; Microsoft SQL Server)&lt;/li&gt;
-  &lt;li&gt;The computation and memory capacity of DB instance is determined by its DB instance class that you can select what you deem suitable (e.g. db.m4.large, db.t2.micro…)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;So a DB instance can be considered as a more low-level, hardware-is component, which basically concerns with storage size, storage type (HDD or SSD), computation performance, and DB engine.&lt;/p&gt;
-
-&lt;h4 id=&quot;regions-and-availability-zones&quot;&gt;Regions and availability zones&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Each data center location is called a region (e.g. US North, Asia,…). Each region contains multiple distinc locations called availibility zones (AZ). Each AZ is engineered to be isolated from failures in another AZs.&lt;/li&gt;
-  &lt;li&gt;DB instance can be run in several availability zones if you want. In this case, a replica of your DB instance will e created in a different AZ.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;So basically you have an option to make your database more robust to facility failure. Instead of hosting a database in DB instances of a single facility, AWS will replicate your database and run it on other DB instances of other facilities.&lt;/p&gt;
-
-&lt;h4 id=&quot;security-groups&quot;&gt;Security groups&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;A security group controls access to a DB instance, by controlling access to the IP address ranges or EC2 instances that the DB instance associates with&lt;/li&gt;
+  &lt;li&gt;Install: &lt;code&gt;pip install django-tinymce&lt;/code&gt;&lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;There are these groups:&lt;/p&gt;
+    &lt;p&gt;Configure:&lt;/p&gt;
 
-    &lt;ul&gt;
-      &lt;li&gt;DB security groups: control access to DB instances outside a VPC&lt;/li&gt;
-      &lt;li&gt;VPC security groups: control access to DB instances inside a VPC (probably applies to you if you are new AWS user). You can use a default VPC security group, or specifically define a new security group for your DB instance&lt;/li&gt;
-      &lt;li&gt;EC2 security groups: control access to EC2 instances in general (DB instances outside of VPC is part of EC2 platform)&lt;/li&gt;
-    &lt;/ul&gt;
+    &lt;p&gt;a. Add ‘tinymce’ to INSTALLED_APPS
+ b. Make sure that &lt;code&gt;TINYMCE_JS_URL&lt;/code&gt; and &lt;code&gt;TINYMCE_JS_ROOT&lt;/code&gt; point to source files
+ c. Configure default editor with &lt;code&gt;TINYMCE_DEFAULT_CONFIG&lt;/code&gt;. Also see &lt;a href=&quot;http://www.tinymce.com/wiki.php/configuration&quot;&gt;here&lt;/a&gt; and &lt;a href=&quot;http://django-tinymce.readthedocs.io/en/latest/&quot;&gt;here&lt;/a&gt;. The following is the configuration I use for cpp (document here for future reference)&lt;/p&gt;
   &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;db-parameter-groups&quot;&gt;DB parameter groups&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;They are DB configuration values.&lt;/li&gt;
-  &lt;li&gt;They can be applied to one or more DB instances of the same instance type&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;db-option-groups&quot;&gt;DB option groups&lt;/h4&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Tools to manage database, organized in groups.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;how-to-access-rds-rds-interfaces&quot;&gt;How to access RDS (RDS interfaces):&lt;/h1&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Amazon RDS console: web-based UI&lt;/li&gt;
-  &lt;li&gt;Command line interface&lt;/li&gt;
-  &lt;li&gt;Programmatic interfaces: access database in programming languages&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;steps-to-create-mysql&quot;&gt;Steps to create (MySQL)&lt;/h1&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Sign in AWS, create IAM. RDS will need an IAM for authorization&lt;/li&gt;
-  &lt;li&gt;Create a security group for the VPC that will house your DB instance. This security group will dictate how your DB instances will be accessed&lt;/li&gt;
-  &lt;li&gt;Get into &lt;a href=&quot;https://console.aws.amazon.com/rds/&quot;&gt;RDS console&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;Choose the region, choose &lt;strong&gt;Instances*, choose **Launch DB Instance&lt;/strong&gt;, select &lt;strong&gt;MySQL DB engine&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;Specify configuration in &lt;strong&gt;&lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html&quot;&gt;Specify DB Details&lt;/a&gt;&lt;/strong&gt; and launch&lt;/li&gt;
-  &lt;li&gt;Connect to the database instance with &lt;code&gt;mysql -h [endpoint] -P [port possibly 3306] -u [username] -p&lt;/code&gt;. Make sure the security group allow your IP address to make incomming access to the DB instance of specified endpoint. You can also connect with &lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html&quot;&gt;SSH&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h1 id=&quot;answers&quot;&gt;Answers&lt;/h1&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;TINYMCE_DEFAULT_CONFIG&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;mode&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;textareas&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;theme&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;advanced&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;theme_advanced_toolbar_location&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;top&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;theme_advanced_toolbar_align&amp;quot;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;left&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;#39;height&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;350px&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;#39;width&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;700px&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;plugins&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;table,save,advhr,advimage,advlink,iespell,&amp;quot;&lt;/span&gt;
+                    &lt;span class=&quot;s&quot;&gt;&amp;quot;insertdatetime,preview,fullscreen,paste,print&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;theme_advanced_buttons1&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;undo,redo,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;bold,italic,underline,strikethrough,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;justifyleft,justifycenter,justifyright,justifyfull,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;bullist,numlist,outdent,indent,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;fontselect,fontsizeselect,formatselect,separator,&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;theme_advanced_buttons2&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;cut,copy,pastetext,pasteword,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;charmap,blockquote,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;table,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;forecolor,backcolor,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;sub,sup,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;link,unlink,anchor,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;image,cleanup,help,separator,&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;fullscreen,preview,code,print,separator,&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;theme_advanced_buttons3&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;tablecontrols&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;auto_cleanup_word&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;plugin_insertdate_dateFormat&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;%m/&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%d&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;/%Y&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;plugin_insertdate_timeFormat&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;%H:%M:%S&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&amp;quot;extended_valid_elements&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;a[name|href|target=_blank|title|onclick],&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;img[class|src|border=0|alt|title|hspace|vspace|width|height&amp;quot;&lt;/span&gt;
+                        &lt;span class=&quot;s&quot;&gt;&amp;quot;|align|onmouseover|onmouseout|name],&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;hr[class|width|size|noshade],&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;font[face|size|color|style],&amp;quot;&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;span[class|align|style]&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Before creating a database with RDS, should keep in mind:
-    &lt;ul&gt;
-      &lt;li&gt;Memory and processor requirements to pick the appropriate DB instance type&lt;/li&gt;
-      &lt;li&gt;Whether to have failover support (multi-AZ deployment)&lt;/li&gt;
-      &lt;li&gt;Does your AWS account have policies t hat grant the permissions needed to perform AWS RDS operations&lt;/li&gt;
-      &lt;li&gt;What TCP/IP port will your database be listening on&lt;/li&gt;
-      &lt;li&gt;What region do you want to place your database&lt;/li&gt;
-      &lt;li&gt;Storage requirement (whether you need database that has high capacity at low cost, or IO intensive, or general purpse)&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;There are 2 ways to connect to database:
-    &lt;ul&gt;
-      &lt;li&gt;The RDS security group allows incoming access from your IP address&lt;/li&gt;
-      &lt;li&gt;Your AWS account has IAM user, and that user can access RDS&lt;/li&gt;
-      &lt;li&gt;Your personal computer has id and key of that IAM user&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;To connect database:
-    &lt;ul&gt;
-      &lt;li&gt;(manual) Use &lt;code&gt;mysql&lt;/code&gt; or any more relevant database engine interface&lt;/li&gt;
-      &lt;li&gt;(manual) SSH into the database instance (as referred in step 6 above)&lt;/li&gt;
-      &lt;li&gt;(code) In this case you need to supply the code with database connection configurations and use the appropriate database API&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;Can source code in other part of AWS or personal computer access database? &lt;strong&gt;&lt;em&gt;Yes&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;If the above is true, what is the security measure? &lt;strong&gt;&lt;em&gt;More specific security group&lt;/em&gt;&lt;/strong&gt;. For example, instead of allowing all IP addresses to access the database, only allow a trusted subset of IPs…&lt;/li&gt;
-  &lt;li&gt;How to scale with RDS? &lt;strong&gt;&lt;em&gt;Since CPU, memory, storage, IOPS are not bundled&lt;/em&gt;&lt;/strong&gt;, you can &lt;a href=&quot;https://aws.amazon.com/rds/faqs/#hardware-scaling&quot;&gt;increase database capacity&lt;/a&gt; by specifying additional resources…&lt;/li&gt;
-  &lt;li&gt;Is there any backup support mechanism from AWS? &lt;strong&gt;&lt;em&gt;You can configure RDS to &lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html&quot;&gt;automated snapshot&lt;/a&gt;&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;Create editor simply just by changing &lt;code&gt;fields.TextField&lt;/code&gt; to &lt;code&gt;tinymce.models.HTMLField&lt;/code&gt;. This editor should conform to the default configuration specified above.&lt;/li&gt;
+  &lt;li&gt;Edit the appearence of text editor. Refer &lt;a href=&quot;https://www.tinymce.com/docs-3x/reference/buttons/&quot;&gt;here&lt;/a&gt; and &lt;a href=&quot;http://archive.tinymce.com/wiki.php/Configuration3x:theme_advanced_buttons_1_n_add_before&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
 </description>
-        <pubDate>Sun, 04 Dec 2016 18:49:00 +0700</pubDate>
-        <link>http://yourdomain.com/aws/aws-rds.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/aws/aws-rds.html</guid>
-        
-        
-        <category>aws</category>
-        
-      </item>
-    
-      <item>
-        <title>161206 - NongSan</title>
-        <description>&lt;p&gt;Created a new post template written in Python, so that I don’t have to deal with filling out every bit of blog information anytime later&lt;/p&gt;
-
-&lt;p&gt;Now setting up nong san. Setting up nong san is actually pretty fast, thanks to all the time that I spent on abstracting the structure and creating all kinds of test for other modules. The job is basically just change the name of nongvien to nongsan lol.&lt;/p&gt;
-
-&lt;p&gt;Thinking about making image sprites and/or incorporating data uris (data uris would be good for icons in case I would not want to use sprites):
-- https://www.npmjs.com/package/sprity
-- https://css-tricks.com/data-uris/&lt;/p&gt;
-
-&lt;p&gt;Any way tonight I will restructure cpp project. The current structure is pretty flat and entails a lot of duplications. Restructuring the code to be a little more vertical would allow easier maintenance.&lt;/p&gt;
-</description>
-        <pubDate>Sun, 04 Dec 2016 18:16:02 +0700</pubDate>
+        <pubDate>Wed, 28 Dec 2016 22:30:15 +0000</pubDate>
         <link>http://yourdomain.com/blog/blog.html</link>
         <guid isPermaLink="true">http://yourdomain.com/blog/blog.html</guid>
         
@@ -613,152 +695,173 @@ http://jessenoller.com/2009/02/01/python-threads-and-the-global-interpreter-lock
       </item>
     
       <item>
-        <title>Deploying Django to AWS Elastic Beanstalk</title>
-        <description>&lt;p&gt;Documentation of the steps to deploy Django to EB&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;Freeze pip and export environment to requirements.txt, located in the project root folder&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;Remember not to include unnecessary libraries. They might inadvertantly break the installation (e.g psycorg2 w/o postgre will raise error during installation)&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Create .ebextensions and include a [whatever].config file:&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;
-        &lt;p&gt;The reference for Python configuration should be &lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-specific.html#command-options-python&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;n&quot;&gt;option_settings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-   &lt;span class=&quot;n&quot;&gt;aws&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elasticbeanstalk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;python&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-     &lt;span class=&quot;n&quot;&gt;WSGIPath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;wsgi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-   &lt;span class=&quot;n&quot;&gt;aws&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elasticbeanstalk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;variables&lt;/span&gt;
-   &lt;span class=&quot;n&quot;&gt;aws&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elasticbeanstalk&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;python&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;staticfiles&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url_path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dir_replacement&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-      &lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;You can edit the configuration any time using &lt;code&gt;eb config&lt;/code&gt;. This command will fetch the configuration from server and populate it to you vim or whatnot for you to edit.&lt;/p&gt;
-      &lt;/li&gt;
-      &lt;li&gt;The complete environment configuration can be referred &lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers.html&quot;&gt;here&lt;/a&gt;&lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code&gt;eb init&lt;/code&gt; to set up eb cli - server interaction. This step just initializes the information, it does not create anything on the server-side. If you need to change your settings later, run &lt;code&gt;eb init -i&lt;/code&gt;. The whole idea of this initialization process is to set up your desired server region, ssh key (so that you would be able to access your server using command line).&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Commit your local repository before the next step (&lt;code&gt;eb create&lt;/code&gt;), as well as whenever you make a change in your local repository and want to reflect that change on server using &lt;code&gt;eb deploy&lt;/code&gt;. The idea of EB is to upload the latest commit that you make and apply that commit to the source code at the server. For that also reason, pay attention with your .gitignore, as it might contain necessary files to run the server.&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;Run &lt;code&gt;eb create&lt;/code&gt; to create the environment You can create the RDS during &lt;code&gt;eb create&lt;/code&gt;. All of the options stay &lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb3-create.html#eb3-createoptions&quot;&gt;here&lt;/a&gt;. Sample command:&lt;/p&gt;
-
-    &lt;ul&gt;
-      &lt;li&gt;
-        &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;eb create testenv1 --database.engine mysql --database.username testusername --database.password testpassword --scale 1&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-      &lt;/li&gt;
-      &lt;li&gt;Again, remember to commit local repository before &lt;code&gt;eb create&lt;/code&gt; or &lt;code&gt;eb deploy&lt;/code&gt;.&lt;/li&gt;
-      &lt;li&gt;If you set the database server this way, make sure you log in to that DB server to create a real production DB, either by ssh-ing into server, or directly from your IP address. If the DB server is MySQL, the command looks like: &lt;code&gt;mysql -h [database endpoint] -P [port] -u [username] -p&lt;/code&gt;. Note that if you access the DB server directly from your own IP address, you should change that DB server’s security group to allow incoming access from your IP address.&lt;/li&gt;
-      &lt;li&gt;
-        &lt;p&gt;One more thing to note, if you are using EB and you choose Linux server. However, if your development environment is MacOS or Windows, then just &lt;code&gt;pip freeze&lt;/code&gt; might not accurately reproduce your environment into server. In that case, be prepared to modify configuration file to add any missing dependencies. Example:&lt;/p&gt;
-
-        &lt;ul&gt;
-          &lt;li&gt;
-            &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-yaml&quot; data-lang=&quot;yaml&quot;&gt;&lt;span class=&quot;l-Scalar-Plain&quot;&gt;packages&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt;
-  &lt;span class=&quot;l-Scalar-Plain&quot;&gt;yum&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxml2&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;
-    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxml2-devel&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;
-    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxslt&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;
-    &lt;span class=&quot;l-Scalar-Plain&quot;&gt;libxslt-devel&lt;/span&gt;&lt;span class=&quot;p-Indicator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p-Indicator&quot;&gt;[]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-          &lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;And this is pretty much is. If you have any error, check the log with &lt;code&gt;eb logs&lt;/code&gt;. AWS EB also provides some very helpful commands below:&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
+        <title>161226 - Google Drive REST API</title>
+        <description>&lt;h1 id=&quot;drive-rest-api-capabilities&quot;&gt;Drive REST API capabilities&lt;/h1&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;code&gt;eb printenv&lt;/code&gt;: print the server environment variables&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;eb console&lt;/code&gt;: open the EB console in web browser&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;eb open&lt;/code&gt;: open your EB-hosted site in web browser&lt;/li&gt;
-  &lt;li&gt;&lt;code&gt;eb ssh&lt;/code&gt;: ssh into your server command line.
-    &lt;ul&gt;
-      &lt;li&gt;Your application is located here: &lt;code&gt;/opt/python/current/app&lt;/code&gt;&lt;/li&gt;
-      &lt;li&gt;If you want to run Python on that server, you should activate the environment by running these 2 commands:
-        &lt;ul&gt;
-          &lt;li&gt;&lt;code&gt;$ source /opt/python/run/venv/bin/activate&lt;/code&gt;&lt;/li&gt;
-          &lt;li&gt;&lt;code&gt;$ source /opt/python/current/env&lt;/code&gt;&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-    &lt;/ul&gt;
-  &lt;/li&gt;
+  &lt;li&gt;Download, upload files&lt;/li&gt;
+  &lt;li&gt;Create and open files from Google Drive web UI&lt;/li&gt;
+  &lt;li&gt;Searches for files&lt;/li&gt;
+  &lt;li&gt;Share and collaborate&lt;/li&gt;
+  &lt;li&gt;Use shortcuts&lt;/li&gt;
+  &lt;li&gt;Export and convert Google Docs&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;If you decide &lt;em&gt;not&lt;/em&gt; to create the database instance during &lt;code&gt;eb deploy&lt;/code&gt;, you can basically follow this instruction (&lt;a href=&quot;http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-rds.html&quot;&gt;Database RDS&lt;/a&gt;):&lt;/p&gt;
+&lt;h1 id=&quot;google-api-authentication-and-authorization&quot;&gt;Google API Authentication and Authorization&lt;/h1&gt;
+&lt;p&gt;(focus mainly in installed apps)&lt;/p&gt;
+
+&lt;h2 id=&quot;overview&quot;&gt;Overview&lt;/h2&gt;
+
+&lt;p&gt;App developers gets OAuth2.0 credentials for their client app from Google Api Console —-&amp;gt; App developers embed the credientials inside the source code of their client app —&amp;gt; During usage, client app uses that credentials to request access token from Google server —-&amp;gt; (if authorized) Google server sends back access token to client app —-&amp;gt; Client app uses that access token for the Google API that it is registered.&lt;/p&gt;
+
+&lt;h2 id=&quot;little-more-detail&quot;&gt;Little more detail&lt;/h2&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;&lt;a href=&quot;http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html&quot;&gt;Create&lt;/a&gt; Amazon RDS DB instance&lt;/li&gt;
-  &lt;li&gt;Log in to that instance, and create a production database&lt;/li&gt;
-  &lt;li&gt;Establish database connection in the code (host, port, db name, username, password…)&lt;/li&gt;
-  &lt;li&gt;Update the requirements.txt file (typically to include the database programming interface)&lt;/li&gt;
-  &lt;li&gt;Deploy with EB&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Obtain OAuth 2.0 credentials from Google API console. This step is to establish a connection between your app and Google, through the mutually known client ID and client secret&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Obtain access token from Google Authorization Server. APIs typically are not there for everyone to freely access. The application must request and get an access token to use the APIs. Some types of requests require users to log in and explicitly allow permissions that your app request. This is called user consent.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Send access token to use API.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Refresh the access token if necessary, using refresh token.&lt;/p&gt;
+  &lt;/li&gt;
 &lt;/ol&gt;
 
+&lt;h2 id=&quot;token-expirations&quot;&gt;Token expirations&lt;/h2&gt;
+
+&lt;p&gt;When:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Users revoke access from the app&lt;/li&gt;
+  &lt;li&gt;Token has not been used for 6 months&lt;/li&gt;
+  &lt;li&gt;User changed password and the token contain Gmail scopes&lt;/li&gt;
+  &lt;li&gt;User account exceeds a certain number of tokens requests&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;note&quot;&gt;Note:&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The client ID and secret ID should be embedded inside client app’s source code, which ironically makes it not a secret… &lt;/li&gt;
+  &lt;li&gt;(From some testing with Google Drive Python API)&lt;/li&gt;
+  &lt;li&gt;the access token json file must contains all original keys (regardless of values)&lt;/li&gt;
+  &lt;li&gt;as long as access_token is still valid (has not expired), the value of refresh_token, client_id and client_secret are unnecessary&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;resources&quot;&gt;Resources&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developers.google.com/api-client-library/python/guide/aaa_oauth&quot;&gt;Python API Client Library&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 </description>
-        <pubDate>Sat, 03 Dec 2016 02:50:12 +0700</pubDate>
-        <link>http://yourdomain.com/web/django-aws.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/web/django-aws.html</guid>
+        <pubDate>Mon, 26 Dec 2016 02:53:04 +0000</pubDate>
+        <link>http://yourdomain.com/googleappengine/google-drive-rest-api.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/googleappengine/google-drive-rest-api.html</guid>
         
         
-        <category>web</category>
+        <category>googleappengine</category>
         
       </item>
     
       <item>
-        <title>161202 - Deploying Django to AWS</title>
-        <description>&lt;p&gt;Never really deploying anything into production. It should be tricky this time. Anyway what needs to be done should be done.&lt;/p&gt;
+        <title>161223 - DJANGO REST Framework</title>
+        <description>&lt;hr /&gt;
+&lt;p&gt;Main idea: the REST framework provides helpers for server to provide API service.&lt;/p&gt;
 
-&lt;p&gt;EB sounds great, don’t really need to manually manage the interaction with EC2 and RDS and S3. But if I luckily can deploy CPP to EB, I should also try to deploy it manually to EC2, incoporating S3 and RDS&lt;/p&gt;
+&lt;p&gt;Model (Django’s built-in models): this is the place where you store data&lt;/p&gt;
 
-&lt;p&gt;Remember to include RDS…
-- how should I include RDS in Beanstalk environment creation? (in configuration file, or in ebcli interface?)
-(checked) and edit the environment variables inside the eb configuration file &lt;/p&gt;
+&lt;p&gt;Serializer (REST framework): serialize the data from Model into json. Make sense since usually in API server communicates with clients not in HTML but in json&lt;/p&gt;
 
-&lt;p&gt;During &lt;code&gt;eb init&lt;/code&gt;, it asks to use CodeCommit. Yes, to see how it goes. Hmmm so if you choose CodeCommit, during eb initialization, it will asks information about setting up git (CodeCommit). When it asks Enter Repository Name, don’t include .git, even though the default value has a .git suffix…&lt;/p&gt;
+&lt;p&gt;Viewsets (REST framework, like Django’s built-in view): this is REST framework’s pre-defined views (so more than likely, you don’t have to write your own views using Django’s class-based views to handle delivering the result back to client)&lt;/p&gt;
 
-&lt;p&gt;Even in terms of library management, conda and pip are really different. Each has exclusive libraries, but it seems that conda integrates better to pip libraries that vice versa. There are some conda-specific libraries that sound pip-supported, but they are not, so rule of thumbs is for portability, either stick with conda or pip, but not both. Otherwise, remember to install both conda and pip to the production environment.&lt;/p&gt;
+&lt;p&gt;Routers (REST framework, like Django’s urls): routers is a helper is included inside urlpatterns that disects the client’s requested url to call the correct views&lt;/p&gt;
 
-&lt;p&gt;During EB initialization, anytime error occurred, I just terminated the environment and started fresh again. That’s stupid. Instead of &lt;code&gt;eb terminate&lt;/code&gt;, it’s quicker to fix the error based on the log, and &lt;code&gt;eb deploy&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Settings: REST framwork’s specific settings.&lt;/p&gt;
 
-&lt;p&gt;Maybe only commited requirements.txt is uploaded. Too late now tomorrow we continue to fight.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;## Serializer:&lt;/p&gt;
 
-&lt;p&gt;My development environment is MacOS, never thought it would be that troublesome to replicate the working environment into Linux. There are pre-built libraries on Mac that I took for granted. Now look at how &lt;code&gt;yum&lt;/code&gt; works.&lt;/p&gt;
+&lt;p&gt;Data object (such as model) (4)&amp;lt;—–&amp;gt;(1) Serializer (3)&amp;lt;—–&amp;gt;(2) JSON&lt;/p&gt;
 
-&lt;p&gt;lxml requires libxml and libxslt to work… Pillow requires libjpeg and zlib to work. The fact that now I get error from Pillow seems to mean that lxml is installed succesfully. Minor comfort.&lt;/p&gt;
+&lt;p&gt;(1) Take an object, serialize that object into Python native datatype. Example: &lt;code&gt;serializer = Serializer(object)&lt;/code&gt; -&amp;gt; then ‘serializer’ is the native datatype.
+(2) Native datatype can be written out into bytestrings to export to JSON with &lt;code&gt;rest_framework&lt;/code&gt;.renderers.JSONRenderer&lt;code&gt;. Example: &lt;/code&gt;json = JSONRenderer().render(serializer.data)&lt;code&gt;.
+(3) Take a JSON, deserialize that JSON into Python native datatype. At the same time check if it&#39;s valid. This can be done with &lt;/code&gt;JSONParser().parse()&lt;code&gt;. Example: &lt;/code&gt;data = JSONParser().parse(json); serializer = Serializer(data=data)&lt;code&gt;.
+(4) The native data can be used to create an instance of the original class with &lt;/code&gt;.save()&lt;code&gt;. Example: &lt;/code&gt;serialize.save()` will usually save the instance and return back the instance’s reference.&lt;/p&gt;
 
-&lt;p&gt;Ok so I included a shitload of dependencies, &lt;code&gt;yum install libtiff-devel libjpeg-devel libzip-devel freetype-devel lcms2-devel libwebp-devel tcl-devel tk-devel&lt;/code&gt;. Only 2 of them are required (libjpeg-devel and libzip-devel). Just installed them for now to see if any error arises. If error arises during the installation of any other optional libraries, I can exclude them later.&lt;/p&gt;
+&lt;p&gt;This is handy in that it can serialize nested object&lt;/p&gt;
 
-&lt;p&gt;Hmm yum does not have libjpeg-devel (though suggested by official documentation). Instead I need to use libjpeg-turbo-devel. Definitely need to see how yum works. Is yum just a local package manager? Does it have a central repository? Seems like the question is No for the second question.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Question: how does serializer (especially ModelSerializer) populate data from ManyToManyFields?&lt;/p&gt;
+&lt;/blockquote&gt;
 
-&lt;p&gt;So we have a long list of dependency libraries. These libraries serve lxml and Pillow.&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Answer: there are 2 ways:&lt;/p&gt;
+&lt;/blockquote&gt;
 
-&lt;p&gt;The environment is created. Good lord. Now set up the database. Set database deletion policy to &lt;code&gt;Delete&lt;/code&gt;. Although the RDS is created during &lt;code&gt;eb create&lt;/code&gt;, I could find out the name, url, username, password, but where is the database name?&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;ul&gt;
+    &lt;li&gt;use PrimaryKeyRelatedField: this field will list out the &lt;em&gt;primary keys&lt;/em&gt; of related objects&lt;/li&gt;
+    &lt;li&gt;use Serializer for related objects, and add that Serializer as a Field: this will list out any &lt;em&gt;keys/combination of keys&lt;/em&gt; of related objects&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/blockquote&gt;
 
-&lt;p&gt;Changing the DATABASES info in settings, and adding the migrate.config fails. It involves environ, possibly because of the RDS environment variables.&lt;/p&gt;
+&lt;p&gt;Serializer must either has a &lt;code&gt;fields&lt;/code&gt; or &lt;code&gt;exclude&lt;/code&gt; attribute in &lt;code&gt;.Meta&lt;/code&gt; class. To include all fields, use &lt;code&gt;fields = &#39;__all__&#39;&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;Not sure how RDS works, should look how to manually create one, what is a DB instance, the difference between DB instance &amp;amp; DB database, how to connect to database remotely. Do this after dinner&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;## Views&lt;/p&gt;
+
+&lt;p&gt;Since the content-type is automatically inferred from request, the API will return JSON in browser-friendly presentation if the request is made by browser.&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;Flow:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Create model&lt;/li&gt;
+  &lt;li&gt;Create serializers&lt;/li&gt;
+  &lt;li&gt;Create view
+ 3.1. return DRF’s Response object
+ 3.2. use class-based views (APIView)
+ 3.3. class-based views allow the use of mixins
+ 3.4. use DFR’s own generic class-based views
+ 3.5. combine related views into viewset
+ 3.6. binding viewset to urls with &lt;code&gt;Router&lt;/code&gt; class&lt;/li&gt;
+  &lt;li&gt;Add url
+ 4.1. (optionally) add optional format suffixes to URLs&lt;/li&gt;
+  &lt;li&gt;Add authentication and permissions to use API&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;Environment variables can be set/unset depending on Conda environments (for Unix):
+- &lt;code&gt;${ENV_PATH}/etc/conda/activate.d/env_vars.sh&lt;/code&gt;
+- &lt;code&gt;${ENV_PATH}/etc/conda/deactivate.d/env_vars.sh&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;env_vars.sh&lt;/code&gt; of activate should look like:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/sh&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;KEY1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;something&amp;quot;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;KEY2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;something else&amp;quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code&gt;env_vars.sh&lt;/code&gt; of deactivate should look like&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-bash&quot; data-lang=&quot;bash&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/sh&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;KEY1
+&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;KEY2&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;hr /&gt;
+
 </description>
-        <pubDate>Sat, 03 Dec 2016 02:40:45 +0700</pubDate>
-        <link>http://yourdomain.com/blog/blog.html</link>
-        <guid isPermaLink="true">http://yourdomain.com/blog/blog.html</guid>
+        <pubDate>Fri, 23 Dec 2016 10:32:59 +0000</pubDate>
+        <link>http://yourdomain.com/django/django-rest-framework.html</link>
+        <guid isPermaLink="true">http://yourdomain.com/django/django-rest-framework.html</guid>
         
         
-        <category>blog</category>
+        <category>django</category>
         
       </item>
     

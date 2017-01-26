@@ -100,7 +100,7 @@
 
 <h3 id="interaction">Interaction:</h3>
 
-<p>User hits a query -&gt; URLconf -&gt; Invoke <code>SearchView</code> -&gt; <code>earchView</code> is a subclass of Django’s <code>FormView</code> -&gt; <code>SearchForm</code> is called -&gt; make a query with <code>SearchQuerySet</code> -&gt; the search backend will handle search query from <code>SearchIndex</code> -&gt; returns the result to <code>SearchView</code>.</p>
+<p>User hits a query -&gt; URLconf -&gt; Invoke <code>SearchView</code> -&gt; <code>SearchView</code> is a subclass of Django’s <code>FormView</code> -&gt; <code>SearchForm</code> is called -&gt; make a query with <code>SearchQuerySet</code> -&gt; the search backend will handle search query from <code>SearchIndex</code> -&gt; returns the result to <code>SearchView</code>.</p>
 
 <h1 id="answer-questions">Answer questions</h1>
 
@@ -119,7 +119,7 @@
 
     <ul>
       <li>It requires a backend search engine. Haystack does not actually do the searching, it is just a wrapper interface to the search engine</li>
-      <li>At the bare minimum, you need to create a indexed text corpus that the Haystack can direct the search engine to search into; and you need to specify a search URL</li>
+      <li>At the bare minimum, you need to create an indexed text corpus that the Haystack can direct the search engine to search into; and you need to specify a search URL</li>
     </ul>
   </li>
   <li>
@@ -133,8 +133,109 @@
   </li>
 </ol>
 
+<h1 id="documenting-how-i-set-up-haystack-and-solr-and-make-them-work-with-each-other">Documenting how I set up Haystack and Solr, and make them work with each other</h1>
+
+<ol>
+  <li>Install Solr, and run Solr server</li>
+</ol>
+
+<blockquote>
+  <p>http://django-haystack.readthedocs.io/en/v2.5.1/installing_search_engines.html
+I did not run server with <code>java -jar start.jar</code>. There isn’t any <code>start.jar</code> file in <code>example</code>. The documented Solr version is 4.10.2, mine is 6.3.0, so there is a high chance that they change the way to start up Solr. Instead I ran Solr server with <code>bin/solr start</code>. Not sure whether running this way affects Haystack, but accessing http://127.0.0.1:8983/solr does return Solr server interface.
+From the link above, I ran <code>./manage.py build_solr_schema</code> but it raises error regarding lxml. <code>Reason: Incompatible library version: etree.cpython-35m-darwin.so requires version 12.0.0 or later, but libxml2.2.dylib provides version 10.0.0</code>. OK so the reason for this is when lxml is installed, it is configured with Anaconda’s newer version of libxml2.2.dylib. However, when in use, lxml imports more outdated systemwide libxml2. Fix this by install libxml2 with Homebrew, and force that Homebrew’s libxml2 to be a default systemwide version with <code>brew link libxml2 --force</code></p>
+</blockquote>
+
+<ol>
+  <li>Run the command <code>./manage.py build_solr_schema</code> above, and copy that output to <code>templates/search_configuration/solr.xml</code>. Might need to do this again when I configure Haystack.</li>
+  <li>Install Haystack: <code>pip install django-haystack</code></li>
+  <li>Set up Haystack in Django’s setting</li>
+</ol>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">INSTALLED_APPS</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&quot;haystack&quot;</span><span class="p">,)</span>
+<span class="n">HAYSTACK_CONNECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;haystack.backends.solr_backend.SolrEngine&#39;</span><span class="p">,</span>
+        <span class="s">&#39;URL&#39;</span><span class="p">:</span> <span class="s">&#39;http://127.0.0.1:8983/solr&#39;</span>
+        <span class="c"># ...or for multicore...</span>
+        <span class="c"># &#39;URL&#39;: &#39;http://127.0.0.1:8983/solr/mysite&#39;,</span>
+    <span class="p">},</span>
+<span class="p">}</span></code></pre></div>
+
+<ol>
+  <li>Subclass <code>haystack.indexes.SearchIndex</code> and <code>haystack.indexes.Indexable</code> inside <code>search_indexes.py</code>. This file is put inside application folder.</li>
+  <li>Create <code>search/indexes/myapp/note_text.txt</code> inside project templates directory</li>
+  <li>Add <code>url(r'^search/', include('haystack.urls'))</code> inside <code>urls.py</code></li>
+  <li>Create search template <code>${TEMPLATE_DIR}/search/search.html</code></li>
+  <li>Redo step 2. It should be noted that Solr6 does not have conf/schema.xml, so I used this method:
+&gt; <code>build_solr_schema</code> uses a template to generate <code>schema.xml</code>. Haystack provides a default template using some sensible defaults. If you would like to provide your own template, you will need to place it in <code>search_configuration/solr.xml</code>, inside a directory specified by your app’s <code>TEMPLATE_DIRS</code> setting.</li>
+  <li>Restart Solr with <code>bin/solr restart</code></li>
+  <li>Run <code>./manage.py rebuild_index</code>. Errors thrown: <code>Failed to clear Solr index: Solr responded with an error (HTTP 404): [Reason: Error 404 Not Found]</code>. Possibly because no core is created. Run <code>bin/solr create_core -c default -p 8983</code>. Get this response: `{“responseHeader”:{“status”:0,”QTime”:3496},”core”:”default”}. Change HAYSTACK_CONNECTIONS to </li>
+</ol>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">HAYSTACK_CONNECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;haystack.backends.solr_backend.SolrEngine&#39;</span><span class="p">,</span>
+        <span class="s">&#39;URL&#39;</span><span class="p">:</span> <span class="s">&#39;http://127.0.0.1:8983/solr/default&#39;</span>
+        <span class="c"># ...or for multicore...</span>
+        <span class="c"># &#39;URL&#39;: &#39;http://127.0.0.1:8983/solr/mysite&#39;,</span>
+    <span class="p">},</span>
+<span class="p">}</span></code></pre></div>
+
+<ol>
+  <li>Run some simple searches. Failed with <code>'list' object has no attribute 'split'</code>. Probably because of schema misconfiguration. Ok so after a while, the problem does come from schema misconfiguration. Schema generated from Haystack is for previous versions of Solr (probably version &lt;5), so some of the fields in that schema file are deprecated. I fixed the problem by adding the following fields into Solr’s, not Haystack’s (it is outdated) default schema (probably <code>[solr dir]/server/solr/[core]/conf/managed-schema</code>), and then rename <code>managed-schema</code> to <code>schema.txt</code>. If you use this method, you should make a copy of <code>managed-schema</code> in case anything goes wrong. Also, <a href="https://github.com/dekanayake/haystack_solr6">this</a> seems to help (I followed and failed at the very last command - curl. And then I made the fields changes mentioned above and all is well).</li>
+</ol>
+
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">type=</span><span class="s">&quot;string&quot;</span> <span class="na">indexed=</span><span class="s">&quot;true&quot;</span> <span class="na">stored=</span><span class="s">&quot;true&quot;</span> <span class="na">multiValued=</span><span class="s">&quot;false&quot;</span> <span class="na">required=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;django_ct&quot;</span> <span class="na">type=</span><span class="s">&quot;string&quot;</span> <span class="na">indexed=</span><span class="s">&quot;true&quot;</span> <span class="na">stored=</span><span class="s">&quot;true&quot;</span> <span class="na">multiValued=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;django_id&quot;</span> <span class="na">type=</span><span class="s">&quot;string&quot;</span> <span class="na">indexed=</span><span class="s">&quot;true&quot;</span> <span class="na">stored=</span><span class="s">&quot;true&quot;</span> <span class="na">multiValued=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;_version_&quot;</span> <span class="na">type=</span><span class="s">&quot;long&quot;</span> <span class="na">indexed=</span><span class="s">&quot;true&quot;</span> <span class="na">stored =</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span></code></pre></div>
+
+<p>OK so the above are basic steps to set Haystack and Solr up and running, though apparently the default search is stupid. A document can be matched against a query even though it contains a only single word from that query. It seems to fix this behavior I will have to modify <code>SearchQuerySet</code>. So it is because of SearchQuerySet.auto_query(string), which makes use of flawed <code>haystack.inputs.AutoQuery</code>. It returns everything. Just use filter()</p>
+
+<h2 id="customize-search-query-result">Customize search query result</h2>
+
+<p>Haystack uses <code>SearchQuerySet</code> object to (1) construct the query to fetch result from indexes, and (2) post-process the search result given back from indexes.</p>
+
+<p><code>SearchQuerySet</code> is currently implemented with these methods to help construct query:</p>
+
+<ul>
+  <li><code>.all()</code>: copy all results</li>
+  <li><code>.none()</code>: return an empty result</li>
+  <li><code>.exclude(*args, **kwargs)</code>: remove results that contain any of the words in *args, **kwargs</li>
+  <li><code>.filter(*args, **kwargs)</code>: filter (either using <code>.filter_and</code> or <code>.filter_or</code>)</li>
+  <li><code>.filter_and(*args, **kwargs)</code>: return only results that match all of the words in querystring</li>
+  <li><code>.filter_or(*args, **kwargs)</code>: return results that match at least 1 word in querystring</li>
+  <li><code>.order_by(*args, **kwargs)</code>: alter the result order</li>
+  <li><code>.highlight(**kwargs)</code>: add highlight to the result</li>
+  <li><code>.boost(term, boost)</code>: boost certain keywords in the query string</li>
+  <li><code>.facet(field, **options)</code>: add faceting to a query</li>
+  <li><code>.raw_search(query_string, **kwargs)</code>: perform raw search directly into the index</li>
+</ul>
+
+<p>So to avoid the dreaded default result returned by Haystack, just call .filter_and(..) method, rather than .auto_query(..) method. Or if I need fancier search query, I can subclass <code>SearchQuerySet</code> and construct my own search rule.</p>
+
+<h2 id="make-the-search-form-looks-better">Make the search form looks better</h2>
+
+<ul>
+  <li>Haystack’s <code>SearchForm</code> is a subclass of <code>django.forms.Form</code>. Haystack’s <code>ModelSearchForm</code> is a subclass of its own <code>SearchForm</code></li>
+</ul>
+
+<h2 id="commands">Commands</h2>
+
+<ul>
+  <li><code>clear_index</code>: remove the search indexes</li>
+  <li><code>update_index</code>: refresh the entries inside indexes</li>
+  <li><code>rebuild_index</code>: the combination of <code>clear_index</code> then <code>update_index</code></li>
+  <li><code>build_solr_schema</code>: once all of the <code>SearchIndex</code> classes are in place, this command can be used to generate XML schema Solr needs to handle the search data</li>
+  <li><code>haystack_info</code>: get basic information about your Haystack</li>
+</ul>
+
+<p>For details on options and arugments, refer <a href="http://django-haystack.readthedocs.io/en/v2.5.1/management_commands.html">here</a></p>
+
 <h1 id="reference">Reference:</h1>
-<p>http://django-haystack.readthedocs.io/en/v2.5.1/index.html</p>
+<p>http://django-haystack.readthedocs.io/en/v2.5.1/index.html
+http://www.francelabs.com/blog/tutorial-solrcloud-5-amazon-ec2/
+https://wiki.apache.org/solr/SolrOnAmazonEC2</p>
 
   </article>
 

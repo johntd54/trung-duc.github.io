@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>161223 - DJANGO REST Framework</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/django/django-rest-framework.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">161223 - DJANGO REST Framework</h1>
+    <p class="post-meta">Dec 23, 2016</p>
+  </header>
+
+  <article class="post-content">
+    <hr />
+<p>Main idea: the REST framework provides helpers for server to provide API service.</p>
+
+<p>Model (Django’s built-in models): this is the place where you store data</p>
+
+<p>Serializer (REST framework): serialize the data from Model into json. Make sense since usually in API server communicates with clients not in HTML but in json</p>
+
+<p>Viewsets (REST framework, like Django’s built-in view): this is REST framework’s pre-defined views (so more than likely, you don’t have to write your own views using Django’s class-based views to handle delivering the result back to client)</p>
+
+<p>Routers (REST framework, like Django’s urls): routers is a helper is included inside urlpatterns that disects the client’s requested url to call the correct views</p>
+
+<p>Settings: REST framwork’s specific settings.</p>
+
+<hr />
+<p>## Serializer:</p>
+
+<p>Data object (such as model) (4)&lt;—–&gt;(1) Serializer (3)&lt;—–&gt;(2) JSON</p>
+
+<p>(1) Take an object, serialize that object into Python native datatype. Example: <code>serializer = Serializer(object)</code> -&gt; then ‘serializer’ is the native datatype.
+(2) Native datatype can be written out into bytestrings to export to JSON with <code>rest_framework</code>.renderers.JSONRenderer<code>. Example: </code>json = JSONRenderer().render(serializer.data)<code>.
+(3) Take a JSON, deserialize that JSON into Python native datatype. At the same time check if it's valid. This can be done with </code>JSONParser().parse()<code>. Example: </code>data = JSONParser().parse(json); serializer = Serializer(data=data)<code>.
+(4) The native data can be used to create an instance of the original class with </code>.save()<code>. Example: </code>serialize.save()` will usually save the instance and return back the instance’s reference.</p>
+
+<p>This is handy in that it can serialize nested object</p>
+
+<blockquote>
+  <p>Question: how does serializer (especially ModelSerializer) populate data from ManyToManyFields?</p>
+</blockquote>
+
+<blockquote>
+  <p>Answer: there are 2 ways:</p>
+</blockquote>
+
+<blockquote>
+  <ul>
+    <li>use PrimaryKeyRelatedField: this field will list out the <em>primary keys</em> of related objects</li>
+    <li>use Serializer for related objects, and add that Serializer as a Field: this will list out any <em>keys/combination of keys</em> of related objects</li>
+  </ul>
+</blockquote>
+
+<p>Serializer must either has a <code>fields</code> or <code>exclude</code> attribute in <code>.Meta</code> class. To include all fields, use <code>fields = '__all__'</code></p>
+
+<hr />
+<p>## Views</p>
+
+<p>Since the content-type is automatically inferred from request, the API will return JSON in browser-friendly presentation if the request is made by browser.</p>
+
+<hr />
+<p>Flow:</p>
+
+<ol>
+  <li>Create model</li>
+  <li>Create serializers</li>
+  <li>Create view
+ 3.1. return DRF’s Response object
+ 3.2. use class-based views (APIView)
+ 3.3. class-based views allow the use of mixins
+ 3.4. use DFR’s own generic class-based views
+ 3.5. combine related views into viewset
+ 3.6. binding viewset to urls with <code>Router</code> class</li>
+  <li>Add url
+ 4.1. (optionally) add optional format suffixes to URLs</li>
+  <li>Add authentication and permissions to use API</li>
+</ol>
+
+<hr />
+<p>Environment variables can be set/unset depending on Conda environments (for Unix):
+- <code>${ENV_PATH}/etc/conda/activate.d/env_vars.sh</code>
+- <code>${ENV_PATH}/etc/conda/deactivate.d/env_vars.sh</code></p>
+
+<p>The <code>env_vars.sh</code> of activate should look like:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/sh</span>
+
+<span class="nb">export </span><span class="nv">KEY1</span><span class="o">=</span><span class="s2">&quot;something&quot;</span>
+<span class="nb">export </span><span class="nv">KEY2</span><span class="o">=</span><span class="s2">&quot;something else&quot;</span></code></pre></div>
+
+<p>The <code>env_vars.sh</code> of deactivate should look like</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/sh</span>
+
+<span class="nb">unset </span>KEY1
+<span class="nb">unset </span>KEY2</code></pre></div>
+
+<hr />
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

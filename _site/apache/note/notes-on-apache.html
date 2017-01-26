@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>170115 - Notes on Apache</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/apache/note/notes-on-apache.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">170115 - Notes on Apache</h1>
+    <p class="post-meta">Jan 15, 2017</p>
+  </header>
+
+  <article class="post-content">
+    <h1 id="overview">Overview</h1>
+
+<ul>
+  <li>it is a piece of software that runs in the background (hence it’s best that the system supports multi-tasking)</li>
+  <li>its main purpose is to listen to request (from IP addresses specified inside its config files), analyzes that request, and returns a response</li>
+  <li>it can be extended by modules</li>
+  <li>it is set up to run through its configuration files</li>
+  <li>
+    <p>multiple domains can be on the same IP (virtual hosts), or vice versa (multiple servers or multi-addresses)</p>
+
+    <ul>
+      <li>in the first case, the process looks as follow: user types domain name -&gt; browser sends the domain name to DNS service -&gt; DNS service returns the IP address of that domain name -&gt; browser connects to that IP address, with the domain name in HOST header to let server know which site should be served if the server hosts multiple sites</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="virtual-hosts">Virtual hosts</h1>
+<p>(the text below is the most important partially copied from <a href="https://httpd.apache.org/docs/2.4/vhosts/details.html">here</a>)</p>
+
+<ul>
+  <li>There is a main server which consists of all the definitions appearing outside of <virtualhost> sections.</virtualhost></li>
+  <li>There are virtual servers, called vhosts, which are defined by <virtualhost> sections.</virtualhost></li>
+  <li>Each VirtualHost directive includes one or more addresses and optional ports. Hostnames can be used in place of IP addresses in a virtual host definition, but they are resolved at startup and if any name resolutions fail, those virtual host definitions are ignored. This is, therefore, not recommended. The address can be specified as *, which will match a request if no other vhost has the explicit address on which the request was received. The address appearing in the VirtualHost directive can have an optional port. If the port is unspecified, it is treated as a wildcard port, which can also be indicated explicitly using *. The wildcard port matches any port. Collectively the entire set of addresses (including multiple results from DNS lookups) are called the vhost’s address set.</li>
+  <li>Apache automatically discriminates on the basis of the HTTP Host header supplied by the client whenever the most specific match for an IP address and port combination is listed in multiple virtual hosts.</li>
+  <li>The ServerName directive may appear anywhere within the definition of a server. However, each appearance overrides the previous appearance (within that server). If no ServerName is specified, the server attempts to deduce it from the server’s IP address. The first name-based vhost in the configuration file for a given IP:port pair is significant because it is used for all requests received on that address and port for which no other vhost for that IP:port pair has a matching ServerName or ServerAlias. It is also used for all SSL connections if the server does not support Server Name Indication.</li>
+  <li>If a vhost has no ServerAdmin, Timeout, KeepAliveTimeout, KeepAlive, MaxKeepAliveRequests, ReceiveBufferSize, or SendBufferSize directive then the respective value is inherited from the main server. (That is, inherited from whatever the final setting of that value is in the main server.)</li>
+  <li>The “lookup defaults” that define the default directory permissions for a vhost are merged with those of the main server. This includes any per-directory configuration information for any module.</li>
+  <li>The per-server configs for each module from the main server are merged into the vhost server.</li>
+  <li>Essentially, the main server is treated as “defaults” or a “base” on which to build each vhost. But the positioning of these main server definitions in the config file is largely irrelevant – the entire config of the main server has been parsed when this final merging occurs. So even if a main server definition appears after a vhost definition it might affect the vhost definition.</li>
+  <li>Any vhost that includes the magic <em>default</em> wildcard is given the same ServerName as the main server.</li>
+</ul>
+
+<h2 id="virtual-host-matching">Virtual host matching</h2>
+
+<p>The server determines which vhost to use for a request as follows:</p>
+
+<h4 id="ip-address-lookup">IP address lookup</h4>
+
+<p>When the connection is first received on some address and port, the server looks for all the VirtualHost definitions that have the same IP address and port.</p>
+
+<p>If there are no exact matches for the address and port, then wildcard (*) matches are considered.</p>
+
+<p>If no matches are found, the request is served by the main server.</p>
+
+<p>If there are VirtualHost definitions for the IP address, the next step is to decide if we have to deal with an IP-based or a name-based vhost.</p>
+
+<h4 id="ip-based-vhost">IP-based vhost</h4>
+
+<p>If there is exactly one VirtualHost directive listing the IP address and port combination that was determined to be the best match, no further actions are performed and the request is served from the matching vhost.</p>
+
+<h4 id="name-based-vhost">Name-based vhost</h4>
+
+<p>If there are multiple VirtualHost directives listing the IP address and port combination that was determined to be the best match, the “list” in the remaining steps refers to the list of vhosts that matched, in the order they were in the configuration file.</p>
+
+<p>If the connection is using SSL, the server supports Server Name Indication, and the SSL client handshake includes the TLS extension with the requested hostname, then that hostname is used below just like the Host: header would be used on a non-SSL connection. Otherwise, the first name-based vhost whose address matched is used for SSL connections. This is significant because the vhost determines which certificate the server will use for the connection.</p>
+
+<p>If the request contains a Host: header field, the list is searched for the first vhost with a matching ServerName or ServerAlias, and the request is served from that vhost. A Host: header field can contain a port number, but Apache always ignores it and matches against the real port to which the client sent the request.</p>
+
+<p>The first vhost in the config file with the specified IP address has the highest priority and catches any request to an unknown server name, or a request without a Host: header field (such as a HTTP/1.0 request).</p>
+
+<h2 id="source">Source:</h2>
+
+<ul>
+  <li>[Apache documentation][apache_virtual_host]</li>
+</ul>
+
+<p><a href="https://httpd.apache.org/docs/2.4/vhosts/">apache_virtual_host</a></p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

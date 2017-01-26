@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>170115 - Notes on deploying Django</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/django/notes-on-deploying-django.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">170115 - Notes on deploying Django</h1>
+    <p class="post-meta">Jan 15, 2017</p>
+  </header>
+
+  <article class="post-content">
+    <h1 id="deploy-with-ubuntu-on-apache">Deploy with Ubuntu on Apache</h1>
+
+<p>The note below works as of January 2017 and uses Ubuntu 14.04.4 LTS, Apache 2.4, Python 3.4.3, Django 1.10.3, and mod_wsgi 4.5.13. Other versions of any of these softwares might work or not work.</p>
+
+<h2 id="step-by-step">Step-by-step</h2>
+
+<ol>
+  <li>[Create][create_user] a non-root user account with sudo privilege, and SSH to that non-root account
+    <ul>
+      <li>[User privilege][linux_user_privilege]</li>
+    </ul>
+  </li>
+  <li>Install these packages on Ubuntu:
+    <ul>
+      <li>python3-pip</li>
+      <li>libapache2-mod-wsgi-py3 (this is a binary mod_wsgi compiled with Python 3.4.0, so if you use other versions of Python, e.g. 3.4.!0, 3.!4, mod_wsgi might not work, and it would be better to compile from source - see below)</li>
+      <li>libxml2, libxml2-dev, libxlst1.1, libxslt1-dev, libjpeg-turbo8, libjpeg-turbo8-dev, libpng-dev, libfreetype6-dev (these are packages that my Django app requires, you might not need, so you can skip it)</li>
+    </ul>
+  </li>
+  <li>
+    <p>Install virtualenv on Ubuntu: <code>sudo pip3 install virtualenv</code></p>
+  </li>
+  <li>
+    <p>Create a new environment: <code>virtualenv -p python3.4 [env_name]</code> and activate it (<code>source activate [env_name]/bin/activate</code>)</p>
+  </li>
+  <li>
+    <p>Install django (1.10.3): <code>pip3 install django=1.10.3</code>, start a test project, migrate, create super user, collect static, and run it with <code>./manage.py runserver 0.0.0.0:8000</code>. The test site should show up when connected using the browser to [IP address]:8000.</p>
+  </li>
+  <li>Configure Apache and mod_wsgi:
+    <ul>
+      <li>Create a text file inside <code>/etc/apache2/sites-available/</code>. In this example, let’s call it <code>abc.conf</code>, and add the following:</li>
+    </ul>
+  </li>
+</ol>
+
+<div class="highlight"><pre><code class="language-xml" data-lang="xml">LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
+WSGISocketPrefix /var/run/wsgi
+
+<span class="nt">&lt;VirtualHost</span> <span class="err">*:80</span><span class="nt">&gt;</span>
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    Alias /static /path/to/static/folder
+    <span class="nt">&lt;Directory</span> <span class="err">/path/to/static/folder</span><span class="nt">/&gt;</span>
+            Order allow,deny
+            Allow from all
+    <span class="nt">&lt;/Directory&gt;</span>
+
+    <span class="nt">&lt;Directory</span> <span class="err">/path/to/your/django/app/folder</span><span class="nt">/&gt;</span>
+            Require all granted
+    <span class="nt">&lt;/Directory&gt;</span>
+
+    <span class="nt">&lt;Directory</span> <span class="err">/path/to/folder/that/contains/wsgi.py</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;Files</span> <span class="err">wsgi.py</span><span class="nt">&gt;</span>
+                    Require all granted
+            <span class="nt">&lt;/Files&gt;</span>
+    <span class="nt">&lt;/Directory&gt;</span>
+
+    WSGIDaemonProcess [any_name] python-path=/path/to/your/django/app/folder:/path/to/your/python/site-packages python-home=/path/to/your/virtual/env
+    WSGIProcessGroup [any_name]
+    WSGIScriptAlias / /path/to/your/wsgi.py
+<span class="nt">&lt;/VirtualHost&gt;</span></code></pre></div>
+
+<ul>
+  <li>Explanation of the above configuration:
+    <ul>
+      <li>LoadModule: load mod_wsgi module, so that WSGI directives will be recognized by Apache</li>
+      <li>WSGISocketPrefix: see errors section below</li>
+      <li>ErrorLog, CustomLog: directory where the log files will be stored</li>
+      <li>Alias /static /path/to/static/folder and &lt;Directory …static/folder&gt;…&lt;/Directory&gt;: serve static files, and enable read-write permissions on folder contain static files</li>
+      <li>&lt;Directory …/app/folder/&gt;…&lt;/Directory&gt;: allow access the folder that contains all execution files</li>
+      <li>&lt;Directory …/wsig.py/&gt;…&lt;/Directory&gt;: allow access to the wsgi.py file</li>
+      <li>WSGIDaemonProcess: basically, the site will be served by a daemon process (anytime Apache receives request that directed to this virtual host, it will pass the request to a wsgi process, this process will execute and return back the result). It will need several arguments, but shown above are
+        <ul>
+          <li>the name of daemon process</li>
+          <li>path to your python code, the site-packages that contains all packages that your Python will need (followed by colon)</li>
+          <li>the path to your virtual environment (so that WSGI can run the code with the correct Python version)</li>
+        </ul>
+      </li>
+      <li>WSGIProcessGroup: same name as the daemonprocess above</li>
+      <li>WSGIScriptAlias: anything from / (the root domain) will be handled by wsgi.py</li>
+    </ul>
+  </li>
+  <li>Symlink <code>abc.conf</code> to sites-enabled (<code>sudo a2ensite [conf_name]</code>)</li>
+</ul>
+
+<ol>
+  <li>Handle permission issues
+    <ul>
+      <li>Give Apache access and group ownership to sqlite database</li>
+      <li><code>chmod 664 /path/to/db.sqlite3/file</code></li>
+      <li><code>sudo chown :www-data /path/to/db.sqlite3/file</code></li>
+      <li>Give Apache group ownership to the Django app files: <code>sudo chown :www-data /path/to/project</code></li>
+    </ul>
+  </li>
+  <li>Restart Apache: <code>sudo service apache2 restart</code></li>
+</ol>
+
+<h2 id="errors">Errors</h2>
+
+<p>During installing and configuring mod_wsgi, several errors arise:</p>
+
+<h4 id="mismatch-in-compiled-python-and-runtime-python">Mismatch in compiled Python and runtime Python</h4>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">mod_wsgi: Compiled <span class="k">for</span> Python/3.4.0.
+mod_wsgi: Runtime using Python/3.4.3.</code></pre></div>
+
+<p>and </p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">Exception ignored in: &lt;module <span class="s1">&#39;threading&#39;</span> from <span class="s1">&#39;/usr/lib/python3.4/threading.py&#39;</span>&gt;
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+    File <span class="s2">&quot;/usr/lib/python3.4/threading.py&quot;</span>, line 1288, in _shutdown
+        assert tlock is not None
+AssertionError:</code></pre></div>
+
+<p>In my case, I use libapache2-mod-wsgi-py3, which is compiled for Python 3.4.0. However, in my environment, I use Python 3.4.3. So I uninstalled libapache2-mod-wsgi-py3 and compile mod_wsgi from source against the correct Python version (more information on compile from source below)</p>
+
+<h4 id="permissions-issue">Permissions issue</h4>
+
+<p>(13)Permission denied: [client ::1:36568] mod_wsgi (pid=14185): Unable to connect to WSGI daemon process ‘[name_here]’ on ‘/var/run/apache2/wsgi.[…].sock’ after multiple attempts</p>
+
+<p>or </p>
+
+<p><code>(13)Permission denied: [client ::1:37840] mod_wsgi (pid=20690): Unable to connect to WSGI daemon process 'cpp_test' on '/var/run/apache2/wsgi.[...].sock' as user with uid=[...].</code></p>
+
+<p>or</p>
+
+<p><code>(2)No such file or directory: mod_wsgi (pid=22808): Couldn't bind unix domain socket '/etc/apache2/run/wsgi.[...].sock'</code></p>
+
+<p>Refer <a href="http://modwsgi.readthedocs.io/en/develop/user-guides/configuration-issues.html">here</a>. But the main point is Apache process communicates with WSGI daemon process through UNIX sockets (basically files on disk). If the folder contains those files don’t have read/write permission, communication halts. E.g. in the example above Apache cannot read/write on /var/run/apache2. As a result, we need to assign a different location, by:</p>
+
+<p><code>WSGISocketPrefix run/wsgi</code></p>
+
+<p>Some Linux distributions (including Ubuntu) prohibit read/write on run, so use this instead:</p>
+
+<p><code>WSGISocketPrefix /var/run/wsgi</code></p>
+
+<h4 id="cannot-load-modwsgiso">Cannot load mod_wsgi.so</h4>
+
+<p><code>Cannot load modules/mod_wsgi.so into server: /etc/apache2/modules/mod_wsgi.so: cannot open shared object file: No such file or directory</code></p>
+
+<p>This error probably comes from wsgi.conf and wsgi.load not symlinked in mods-enabled. To solve it:
+- <code>sudo a2enmod wsgi</code>
+or 
+- <code>LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so</code> (in configuration file above)</p>
+
+<h2 id="compile-from-sources">Compile from sources</h2>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">wget -q <span class="s2">&quot;https://github.com/GrahamDumpleton/mod_wsgi/archive/4.5.13.tar.gz&quot;</span>
+tar -xzf <span class="s1">&#39;4.5.13.tar.gz&#39;</span>
+<span class="nb">cd</span> ./mod_wsgi-4.5.13
+./configure --with-python<span class="o">=</span>/path/to/the/right/python/executable
+make
+make install</code></pre></div>
+
+<p>Depending on the Apache version that apache2-dev library should be installed - <code>sudo apt-get install apache2-dev</code>. Otherwise, during ./configure, something like this might appear <code>apxs: command not found</code></p>
+
+<p>Then mod_wsgi should be found in these directories:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">/etc
+/etc/apache2
+/etc/apache2/mods-available
+/etc/apache2/mods-available/wsgi.conf
+/etc/apache2/mods-available/wsgi.load
+/usr
+/usr/lib
+/usr/lib/apache2
+/usr/lib/apache2/modules
+/usr/lib/apache2/modules/mod_wsgi.so-3.4
+/usr/lib/apache2/modules/mod_wsgi.so</code></pre></div>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>This note contains information from the following sources:
+- [mod_wsgi official documentation][mod_wsgi_doc]
+- [How to serve Django applications with Apache and mod_wsgi on Ubuntu 14.04][digital_ocean_tut]
+- [Django resources][django_resource]</p>
+
+<p>Other sources:
+- This can be an easier way to install [mod_wsgi][mod_wsgi_pip] (haven’t tried yet)
+- [Set up uwsgi and nginx to serve Python apps on Ubuntu][uwsgi_nginx]
+- [How to configure Apache Web Server on an Ubuntu or Debian VPS][apache_ubuntu]</p>
+
+<p>http://stackoverflow.com/questions/2285879/how-do-i-redirect-domain-com-to-www-domain-com-under-django</p>
+
+<p><a href="https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04#step-one-—-root-login">create_user</a>
+<a href="https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-apache-and-mod_wsgi-on-ubuntu-14-04">digital_ocean_tut</a>
+<a href="https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file-on-ubuntu-and-centos">linux_user_privilege</a>
+<a href="http://modwsgi.readthedocs.io/en/develop/user-guides/installation-issues.html">mod_wsgi_doc</a>
+<a href="https://pypi.python.org/pypi/mod_wsgi">mod_wsgi_pip</a>
+<a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-uwsgi-and-nginx-to-serve-python-apps-on-ubuntu-14-04">uwsgi_nginx</a>
+<a href="https://www.digitalocean.com/community/tutorials/how-to-configure-the-apache-web-server-on-an-ubuntu-or-debian-vps">apache_ubuntu</a>
+<a href="https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/modwsgi/">django_resource</a></p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

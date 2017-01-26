@@ -28,7 +28,7 @@ The note below works as of January 2017 and uses Ubuntu 14.04.4 LTS, Apache 2.4,
 6. Configure Apache and mod_wsgi:
 - Create a text file inside `/etc/apache2/sites-available/`. In this example, let's call it `abc.conf`, and add the following:
 
-{% highlight %}
+{% highlight xml %}
 LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
 WSGISocketPrefix /var/run/wsgi
 
@@ -87,14 +87,14 @@ During installing and configuring mod_wsgi, several errors arise:
 
 #### Mismatch in compiled Python and runtime Python
 
-{% highlight %}
+{% highlight bash %}
 mod_wsgi: Compiled for Python/3.4.0.
 mod_wsgi: Runtime using Python/3.4.3.
 {% endhighlight %}
 
 and 
 
-{% highlight %}
+{% highlight bash %}
 Exception ignored in: <module 'threading' from '/usr/lib/python3.4/threading.py'>
 Traceback (most recent call last):
     File "/usr/lib/python3.4/threading.py", line 1288, in _shutdown
@@ -136,7 +136,7 @@ or
 
 ## Compile from sources
 
-{% highlight %}
+{% highlight bash %}
 wget -q "https://github.com/GrahamDumpleton/mod_wsgi/archive/4.5.13.tar.gz"
 tar -xzf '4.5.13.tar.gz'
 cd ./mod_wsgi-4.5.13
@@ -149,7 +149,7 @@ Depending on the Apache version that apache2-dev library should be installed - `
 
 Then mod_wsgi should be found in these directories:
 
-{% highlight %}
+{% highlight bash %}
 /etc
 /etc/apache2
 /etc/apache2/mods-available

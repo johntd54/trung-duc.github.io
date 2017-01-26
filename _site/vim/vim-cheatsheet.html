@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>170117 - Vim cheatsheet</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/vim/vim-cheatsheet.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">170117 - Vim cheatsheet</h1>
+    <p class="post-meta">Jan 17, 2017</p>
+  </header>
+
+  <article class="post-content">
+    <p>To remember:
+- <code>operator [number] motion</code>: perform the operation [number] of times. If [number] is not specified, then perform 1 time. Example: <code>dd</code> deletes a line, <code>d2d</code> or <code>2dd</code> deletes 2 lines; <code>j</code> moves the cursor down 1 line, <code>10j</code> moves the cursor down 10 lines</p>
+
+<p>Move around:</p>
+
+<ul>
+  <li><code>h</code> to move left</li>
+  <li><code>j</code> to move down</li>
+  <li><code>k</code> to move up</li>
+  <li><code>l</code> to move right</li>
+  <li><code>0</code> to move to the begin of line</li>
+  <li><code>^</code> to move to the first non-space character of line</li>
+  <li><code>$</code> to move to the end of line</li>
+  <li><code>gg</code> to move to the first line of file</li>
+  <li><code>G</code> to move to the last line of file</li>
+  <li><code>w</code> to move to the beginning of next word</li>
+  <li><code>e</code> to move to the end of next word</li>
+  <li><code>[number]G</code> to move to the specified line number</li>
+  <li><code>%</code> to move/alternate between beginning and ending ‘( )’, ‘[ ]’ and ‘{ }’ characters, if the cursor is currently in/on those characters</li>
+  <li>Ctrl-O to move the cursor back to where you were, repeat to go further</li>
+  <li>Ctrl-I to is the reverse of Ctrl-0</li>
+</ul>
+
+<p>File operations:</p>
+
+<ul>
+  <li><code>:q!</code> to quit without change</li>
+  <li><code>:wq</code> to write/save and quit</li>
+  <li><code>:w [filename]</code> to write the text to that file</li>
+  <li><code>vim [filename]</code> to open a file with vim</li>
+  <li>Ctrl-G to show location of the file and file status</li>
+  <li><code>/[term]</code> to search the term from the begin of file, use <code>n</code> and <code>N</code> to search forward, backward respectively</li>
+  <li><code>?[term]</code> to search the term from the end of file, use <code>N</code> and <code>n</code> to search forward, backward respectively
+    <ul>
+      <li><code>:set ic</code> to ignore case-sensitivity and <code>:set noic</code> to turn it off</li>
+      <li><code>:set hls</code> to set highlight search and <code>:set nohls</code> to turn it off, <code>:nohlsearch</code> to temporarily turn the color off</li>
+      <li><code>:set is</code> to set incremental search and <code>:set nois</code> to turn it off</li>
+    </ul>
+  </li>
+  <li><code>:![command]</code> to execute any terminal command. Example <code>:!cd ..</code>, <code>:!pwd</code><code>, </code>:!ls`,…</li>
+  <li><code>v</code> to start visual mode</li>
+  <li><code>y</code> to yank (copy), (to paste it, move the cursor to desired location and <code>p</code>)</li>
+  <li><code>y</code> is an operator, and can work with motion like (“Move around” section above)</li>
+</ul>
+
+<p>Delete operations:</p>
+
+<ul>
+  <li><code>x</code> to delete the character at cursor</li>
+  <li><code>dw</code> to delete a word, and the spaces leading to the next word (the cursor must be at the first character of the word to delete)</li>
+  <li><code>de</code> to delete a word only (the cursor must be at the first character of the word to delete)</li>
+  <li><code>d$</code> to delete from the cursor to the end of line</li>
+  <li><code>dd</code> to delete line</li>
+</ul>
+
+<p>Add texts:</p>
+
+<ul>
+  <li><code>i</code> to insert before the cursor</li>
+  <li><code>a</code> to insert after the cursor (basically to append to a line)</li>
+  <li><code>A</code> to append at the end of the line</li>
+  <li><code>p</code> to put the previously deleted texts</li>
+  <li><code>:r [filename]</code> to insert the content of the file below the current cursor</li>
+  <li><code>:r ![command]</code> to insert output of the command below the current cursor</li>
+  <li><code>o</code> to make and move to a new line under the cursor</li>
+  <li><code>O</code> to make and move to a new line above the cursor</li>
+</ul>
+
+<p>Edit texts:</p>
+
+<ul>
+  <li><code>u</code> to undo the last change</li>
+  <li><code>U</code> to undo the last changes in the whole line</li>
+  <li>Ctrl-R to undo the undo</li>
+  <li><code>r[character]</code> to replace the character at the cursor</li>
+  <li><code>R</code> to replace multiple characters</li>
+  <li><code>ce</code> to change until the end of the word (kind of a shorthand for <code>de</code> then <code>i</code>, without having to have the cursor at the beginning of the word)</li>
+  <li><code>c$</code> to change until the end of line (kind of a shorthand for <code>d$</code> then <code>i</code>)</li>
+  <li><code>:s/[old]/[new]</code> to substitute the first occurence of old word with new word <em>in the current line</em></li>
+  <li><code>:s/[old]/[new]/g</code> to substitute all old words with new word <em>in the current line</em></li>
+  <li><code>:[number_small],[number_large]s/[old]/[new]/g</code> to substitute all old words with new word between line [number_small] and line [number_large]</li>
+  <li><code>:%s/old/new/g</code> to substitute all old words with new word <em>in the file</em></li>
+  <li><code>:%s/old/new/gc</code> to substitue all old words with new word <em>in the file</em> but with notifying prompt for each change occurence
+    <ul>
+      <li><code>y</code> to replace</li>
+      <li><code>n</code> to skip</li>
+      <li><code>a</code> to replace and end all substitution there</li>
+      <li><code>q</code> to abort</li>
+      <li><code>l</code>: like <code>a</code> but will also move the cursor to begin of line</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Efficiency:</p>
+
+<ul>
+  <li><code>:ab [abbreviated] [term]</code> to create an abbreviation of term</li>
+</ul>
+
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

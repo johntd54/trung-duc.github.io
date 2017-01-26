@@ -58,7 +58,7 @@
 
   <header class="post-header">
     <h1 class="post-title">Deploying Django to AWS Elastic Beanstalk</h1>
-    <p class="post-meta">Dec 3, 2016</p>
+    <p class="post-meta">Dec 2, 2016</p>
   </header>
 
   <article class="post-content">
@@ -143,11 +143,12 @@
           <li><code>$ source /opt/python/current/env</code></li>
         </ul>
       </li>
+      <li>Your server wsgi configuration is located here: <code>/etc/httpd/conf.d/wsgi.conf</code></li>
     </ul>
   </li>
 </ul>
 
-<p>If you decide <em>not</em> to create the database instance during <code>eb deploy</code>, you can basically follow this instruction (<a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-rds.html">Database RDS</a>):</p>
+<p>If you decide <em>not</em> to create the database instance during <code>eb create</code>, you can basically follow this instruction (<a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-rds.html">Database RDS</a>):</p>
 
 <ol>
   <li><a href="http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html">Create</a> Amazon RDS DB instance</li>
@@ -157,6 +158,70 @@
   <li>Deploy with EB</li>
 </ol>
 
+<h1 id="workflow">Workflow:</h1>
+
+<ol>
+  <li>Create new AWS RDS. During RDS creation, best practice is to create a new security group and assign that group to your database. That way, you can easily modify this specific RDS security’s rule without affecting other components in your AWS</li>
+  <li>SSH into the newly created AWS RDS and create specific database (if you haven’t during RDS instance creation), username and password for your Django application. After completing this step, we will have a working MySQL RDS that our Django application can use.</li>
+</ol>
+
+<ul>
+  <li>create user for mysql unix socket connection: <code>CREATE USER '[username]'@'localhost' IDENTIFIED BY '[password]';</code></li>
+  <li>create user for tcp connection: <code>CREATE USER '[username]'@'%' IDENTIFIED BY '[password]';</code></li>
+  <li>grant permission to user: <code>GRANT [permission type] ON [database].[table] TO '[user-name]'@'localhost';</code> or <code>GRANT [permission type] ON [database].[table] TO '[user-name]'@'%';</code></li>
+</ul>
+
+<ol>
+  <li>
+    <p>Run <code>eb init</code>. This command will ask you several questions. The answers you give will be used by to create the application later.</p>
+  </li>
+  <li>
+    <p>Create <code>.ebextensions</code>, and check all the configurations:</p>
+  </li>
+</ol>
+
+<ol>
+  <li>
+    <p>Test run with the production environment variables and settings to see if the site runs. If the site runs, then you can believe that it will run on server</p>
+  </li>
+  <li>
+    <p>Run <code>eb create [env_name]</code></p>
+  </li>
+</ol>
+
+<ul>
+  <li>Error: <code>django.db.utils.OperationalError: (2003, "Can't connect to MySQL server on...</code> during <code>python manage.py migrate</code>
+    <ul>
+      <li>Look at RDS security group, open the RDS security group, edit inbound settings to include security group of elastic beanstalk. You can also follow the link <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.RDS.html#rds-external-defaultvpc">here</a> to connect external RDS to EB (I didn’t).</li>
+    </ul>
+  </li>
+  <li>Then I get this: <code>django.db.utils.OperationalError: (1366, "Incorrect string value:...</code> (probably Unicode problem). So I ssh into mysql, remove the old database, and create the new database with <code>CREATE DATABASE [name] CHARACTER SET utf8;</code>. I also revoke and regrant privileges to access that database to django user.</li>
+  <li>After fixing the above errors, deployment succeeds. However, upon navigating to the homepage, I get Bad Request (404). This problem probably arises due to the EB url is not registered with Django’s ALLOWED_HOST, so I just add that URL to ALLOWED_HOSTS, and everything is fixed.</li>
+</ul>
+
+<ol>
+  <li>
+    <p>Use my own domain name to access the website. This process will require AWS Route 53 and will costs a little money a month (my estimation is at most ~$2) as Route 53 is not provided in Free-Tier. The process is simply documented <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customdomains.html">here</a>. After setting up Route 53 and modifying DNS configuration, it takes about 10 minutes for those changes to take effect.</p>
+  </li>
+  <li>
+    <p>I sshed into the instance to create super user</p>
+  </li>
+  <li>
+    <p>I change debug mode to False. I also add substitute /media/ -&gt; app/media/ inside Configuration &gt; Software Configuration, and now the website also serves static and media files. Serving static files or not on the same server can be manually configured here <code>/etc/httpd/conf.d/wsgi.conf</code> with AWS EB, as superficially noted <a href="https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/modwsgi/#serving-files">here</a></p>
+  </li>
+</ol>
+
+<ul>
+  <li>Error: static files are served but media files are not. Ok because I actually typed in app/media instead of app/media/ (missing trailing slash)</li>
+</ul>
+
+<ol>
+  <li>Set up Solr</li>
+</ol>
+
+<ul>
+  <li>Modify EB security group to allow incoming TCP access from 127.0.0.1:8983 (Solr default address)</li>
+</ul>
 
   </article>
 

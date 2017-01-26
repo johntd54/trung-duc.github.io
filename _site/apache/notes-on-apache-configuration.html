@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width initial-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>170106 - Blog</title>
+    <title>170115 - Notes on Apache Configuration</title>
     <meta name="description" content="A blog documenting the winding journey to be good.
 ">
 
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="canonical" href="http://yourdomain.com/blog/blog.html">
+    <link rel="canonical" href="http://yourdomain.com/apache/notes-on-apache-configuration.html">
 </head>
 
 
@@ -57,30 +57,14 @@
         <div class="post">
 
   <header class="post-header">
-    <h1 class="post-title">170106 - Blog</h1>
-    <p class="post-meta">Jan 6, 2017</p>
+    <h1 class="post-title">170115 - Notes on Apache Configuration</h1>
+    <p class="post-meta">Jan 15, 2017</p>
   </header>
 
   <article class="post-content">
-    <p>Today I upgraded cpp a little bit. Certain things that I learned:</p>
-
-<ul>
-  <li>
-    <p>In Django, when defining Model, you’d better leave .Meta.db_table (table name) as it is by default. If you set table name yourself, the name you pick would have some chances to collide with Django’s default table name for other model (e.g. through table for ManyToMany relationship), which would make tracing the bugs a little bit time consuming. </p>
-  </li>
-  <li>
-    <p><code>django.contrib.staticfiles</code> can discover static files if <code>debug</code> is set to <code>True</code>, which in itself poses a security risk, not to mention that it is inefficient. To use <code>django.contrib.staticfiles</code> without setting <code>debug</code> to <code>True</code>, manually modify Apache and wsgi to serve static files at <code>STATIC_ROOT</code></p>
-  </li>
-  <li>
-    <p>Include <code>django.contrib.staticfiles</code> to run <code>python manage.py collectstatic</code> to collect all static files inside all applications (both your apps and 3rd-party apps) into <code>STATIC_ROOT</code> directory. If you serve static files on the same server that runs Django, then you would probably wants to use <code>collectstatic</code> on the server.</p>
-  </li>
-  <li>
-    <p>You would also want to create a folder to contain project-level files and information. Don’t just store those project-level files directly inside project folder, that would become messy really fast.</p>
-  </li>
-  <li>
-    <p>It’s best if your project’s development structure resembles production structure. 2 main benefits: (1) when your development environment does not work, you know the production environment also does not work, and if you can fix the problem in your own development environment, then it’s highly likely that the same problem in production environment would also be fixed, (2) make development environment resemble production environment will force you to keep your development environment organized.</p>
-  </li>
-</ul>
+    <p>Core configuration: https://httpd.apache.org/docs/2.4/mod/core.html
+Access configuration: https://httpd.apache.org/docs/2.4/mod/mod_access_compat.html
+Some Apache security tips: http://www.tecmint.com/apache-security-tips/</p>
 
   </article>
 

@@ -58,7 +58,7 @@
 
   <header class="post-header">
     <h1 class="post-title">161217 - Automated learning</h1>
-    <p class="post-meta">Dec 18, 2016</p>
+    <p class="post-meta">Dec 17, 2016</p>
   </header>
 
   <article class="post-content">
@@ -115,9 +115,10 @@
 
 <ul>
   <li>Amazon S3: paid</li>
-  <li><strong>Dropbox</strong>: preferred for unlimited data file, should work for data of </li>
+  <li><strong>Dropbox</strong>: preferred for unlimited data file and direct link. But not reliable since Dropbox will disable account of high traffic</li>
   <li>Box: does not support direct link</li>
-  <li><strong>IDrive</strong>: preferred for 5GB of free data, it seems like this service supports up to 2GB of maximum file size (web-based upload) or 10GB (app-based upload)</li>
+  <li>~<strong>IDrive</strong>: preferred for 5GB of free data, it seems like this service supports up to 2GB of maximum file size (web-based upload) or 10GB (app-based upload)~ Actually does not support direct link.</li>
+  <li><strong>Google Drive</strong>: preferred 15GB free data, direct link (https://drive.google.com/uc?export=download&amp;id=FILE_ID), and Google brand name also guarantees a little bit security.</li>
 </ul>
 
 <p>To inquire for which models to train, I should use Django Rest API. Client sends a GET request with optional parameters to the server. The server receives GET requests, processes the parameters, and returns a JSON response. These are the common requests and responses:</p>
@@ -149,16 +150,6 @@
   </tbody>
 </table>
 
-<p>1-Response would be a list of dictionary, each dictionary contains:
-- ID: id of model to train
-- Dataset: name and description of dataset
-- Model description: brief overview of the model</p>
-
-<p>2/3-Response:
-- ID: id of model to train
-- Configuration: link to configuration file
-- Dataset: [list of links to dataset]</p>
-
 <p>1-Request:
 - /list
 - authentication_param</p>
@@ -171,6 +162,33 @@
 - /model
 - authentication_param
 - model_id</p>
+
+<p>1-Response would be a list of dictionary, each dictionary contains:
+- ID: id of model to train
+- Dataset: name and description of dataset
+- Model description: brief overview of the model</p>
+
+<p>2/3-Response:
+- ID: id of model to train
+- Configuration: link to configuration file
+- Dataset: [{url, file_name, dataset_name, size} … list of links to dataset]</p>
+
+<p>Download dataset:</p>
+
+<ul>
+  <li>If any data files in the dataset exists, use those data files first to train, while at the same time download the remaining missing data files.</li>
+  <li>Any data file downloaded should be added to training along with existing data file. Retrieval of missing data files must continues.</li>
+</ul>
+
+<p>Train the model:</p>
+
+<ul>
+  <li>Automatically construct the model based on configuration file.</li>
+  <li>Periodically (say 2/hour or 1 every 1000 iterations or both or …) save the weights to server. Hmm to save the weights use Django Rest API, or maybe use Google Drive API to upload weights to my folder</li>
+  <li>Allow to resume training. Maybe I create a temp file that anytime the system starts, it checks whether there is any existing task</li>
+  <li>Periodically (say 1 every 1000 iterations…) receive the message from server</li>
+  <li>Should load the dataset in small blocks rather than loading the whole dataset, to avoid dataset that is larger than RAM</li>
+</ul>
 
 
   </article>

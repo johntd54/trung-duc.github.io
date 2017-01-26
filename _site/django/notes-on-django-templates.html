@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>170112 - Notes on Django Templates</title>
+    <meta name="description" content="A blog documenting the winding journey to be good.
+">
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="canonical" href="http://yourdomain.com/django/notes-on-django-templates.html">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">Duc Nguyen</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">170112 - Notes on Django Templates</h1>
+    <p class="post-meta">Jan 12, 2017</p>
+  </header>
+
+  <article class="post-content">
+    <h1 id="executing-custom-template-tags-and-filters-inside-textfield">Executing custom template tags and filters inside TextField</h1>
+
+<h2 id="toy-problem">Toy problem:</h2>
+
+<p>I create a blog with Django, and I use a Django model’s TextField to store the content of each blog post in the database. In the blog posts, I might want to include some images, but since manually writing <code>&lt;img src="..." style="..." class="..." /&gt;</code> for each image is too clunkie and error-prone (especially for non-technical people - my mom), I would want a simpler way to insert images. One way to do that is to create a custom Django’s template tag, that automatically render image url to <code>&lt;img.../&gt;</code>, e.g <code>{% make_image http://domain.com/img1.jpg left %}</code> -&gt; <code>&lt;img src="http://domain.com/img1.jpg" class="left" /&gt;</code></p>
+
+<h2 id="key-reasons-on-why-it-is-possible">Key reasons on why it is possible:</h2>
+
+<ul>
+  <li>Any string object can be considered as a template -&gt; so the model’s TextFields can also be rendered as a template</li>
+  <li>Django provides the ability to create custom tags and filters -&gt; so we can create the <code>make_image</code> tag of our own to perform the conversion</li>
+</ul>
+
+<h2 id="each-components">Each components</h2>
+
+<h3 id="custom-template-tags">Custom template tags</h3>
+
+<ol>
+  <li>Create a directory to store your tags. By default, this directory should be named <code>templatetags</code>, and located inside one of the registered apps in <code>settings.INSTALLED_APPS</code>. Also create an <code>__init__.py</code> inside that <code>templatetags</code>, so that Python can import anything inside <code>templatetags</code> as a module.</li>
+  <li>Create a Python file (in this example I would name it <code>extra_html.py</code>). The name of that Python file will be the name of the template modules (to load this module, just use <code>{% load extra_html %}</code> inside your template file). It’s important to name that file distinctly to avoid clash with other installed template tags/filters module of the same name. For example, if you have 2 apps, each with the following structure (respectively): <code>app1/templatetags/abc.py</code> and <code>app2/templatetags/abc.py</code>, then when you call <code>{% load abc %}</code>, Django will get confused on which <code>abc</code> module you want to load. Also keep in mind to avoid naming conflicts with template modules of 3rd party app you use in your project.</li>
+  <li>Create <code>make_image</code> tag. As of version 1.10, the Django template system runs in 2 steps:
+ a. compiling: parse the template to find any instance of <code>{% ... %}</code> and <code>{{ ... }}</code>, and
+ b. rendering: compute and render the result of those <code>{% ... %}</code>, <code>{{ ... }}</code> instances.</li>
+  <li>Compile code:</li>
+</ol>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
+    <span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="kn">import</span> <span class="n">format_html</span>
+
+    <span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+
+    <span class="nd">@register.tag</span> 
+    <span class="k">def</span> <span class="nf">make_image</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tag_name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">location</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split_contents</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">template</span><span class="o">.</span><span class="n">TemplateSyntaxError</span><span class="p">(</span>
+                    <span class="s">&quot;{} tag requires 2 arguments: url and &quot;</span>
+                    <span class="s">&quot;location&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">MakeImage</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span></code></pre></div>
+
+<ul>
+  <li><code>register</code> helps Django template system to find custom template tags and filters (it is used right below with decorator <code>@register.tag</code> to register <code>make_image</code> -&gt; so that you can use and Django can recognize <code>{% make_image ... %}</code> in your Django templates)</li>
+  <li><code>make_image</code> takes 2 arguments: the first one is the parser that parses your template, and the second one is a string right after <code>{%  </code> and before ` %}`.</li>
+  <li><code>.split_contents()</code> will split the string from spaces, e.g <code>"make_image http://domain.com/image1 middle"</code> -&gt; <code>["make_image", "http://domain.com/image1", "middle"]</code></li>
+  <li><code>MakeImage</code> is a rendering class (will be shown later), that takes the url and the location to render into appropriate html tag
+    <ol>
+      <li>Render code:</li>
+    </ol>
+  </li>
+</ul>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">MakeImage</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">location</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Initialize information needed to create image</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+
+        <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Given a template node initialized with the above information, return</span>
+<span class="sd">            a representation.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="s">&#39;&lt;img src=&quot;{}&quot; class=&quot;image_{}&quot;&gt;&#39;</span>
+            <span class="k">return</span> <span class="n">format_html</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="p">)</span></code></pre></div>
+
+<ul>
+  <li><code>template.Node</code>: all compiled/found Django template tags (<code>{% ... %}</code>) will be rendered as an instance of <code>template.Node</code></li>
+  <li><code>render(self, context)</code>: this function will be called by the Django template system to render tags.</li>
+</ul>
+
+<ol>
+  <li>Put the tag inside your TextField: suppose you want to include image in your blog post, instead of writing the full HTML img tag, you can just write <code>{% make_image http://example.com/image1 center %}</code> in your TextField and you will get <code>&lt;img src="http://example.com/image1" class="image_center" /&gt;</code> when your TextField is rendered. But… it does not work yet, as you have to make Django render your TextField as if it is a template (so that it can compile and render <code>{% make_image ... %}</code>, otherwise this code will show up in your blog and no image appears)</li>
+</ol>
+
+<h3 id="stringtext-object-as-a-template">String/text object as a template</h3>
+
+<ol>
+  <li>Objective: we will create another custom tag to evaluate the TextField as template. We will call this custom tag <code>render</code>. So: <code>\{\% render object.textfield \%\}</code> will render <code>object.textfield</code> as a template, hence can compile and render <code>make_image</code> tag inside it.</li>
+  <li>In the same Python file above, add:</li>
+</ol>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">RenderTextField</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variable</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span>
+                        <span class="s">&quot;{}{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;{</span><span class="si">% lo</span><span class="s">ad extra_html %}&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">VariableDoesNotExist</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">TemplateSyntaxError</span><span class="p">):</span>
+                <span class="k">return</span> <span class="s">&quot;Cannot load&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span>
+
+    <span class="nd">@register.tag</span>
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tag_name</span><span class="p">,</span> <span class="n">variable</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split_contents</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">template</span><span class="o">.</span><span class="n">TemplateSyntaxError</span><span class="p">(</span>
+                        <span class="s">&quot;{} tag requires a single argument, which is a block of &quot;</span>
+                        <span class="s">&quot;string&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">contents</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">RenderTextField</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span></code></pre></div>
+
+<ul>
+  <li>structurally, it looks the same as <code>make_image</code> tag: we will have <code>render</code> as a custom template tag, that Django can compile whenever it finds <code>\{\% render ... \%\}</code>, and Django will render the tag with <code>RenderTextField.render(context)</code></li>
+  <li><code>split_contents</code>: after split_contents, we will get [“render”, “object.textfield”]</li>
+  <li><code>template.Variable</code>: since we want to treat object.textfield as a variable, and not a simple text “object.textfield”, we will need to wrap it inside <code>template.Variable</code></li>
+  <li><code>content = self.variable.resolve(context)</code>: Django takes the context to get the value of <code>object.textfield</code>. Here, <code>content</code> will be a string that is a value of <code>object.textfield</code></li>
+  <li><code>t = template.Template("{}{}".format("{% load extra_html %}", content))</code>: the string “{% load extra_html %}…..” will be rendered as a template. We will need the “{% load extra_html %}” appear before the string our object.textfield value, so that the <code>make_image</code> tag inside it can be recognized by the Django template system</li>
+</ul>
+
+<ol>
+  <li>Put everything inside your template, example:</li>
+</ol>
+
+<div class="highlight"><pre><code class="language-html" data-lang="html">{% load extra_html %}
+    <span class="nt">&lt;html&gt;</span>
+      <span class="nt">&lt;body&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>object.title<span class="nt">&lt;/div&gt;</span>
+        <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;content&quot;</span><span class="nt">&gt;</span>{% render object.textfield %}<span class="nt">&lt;/div&gt;</span>
+      <span class="nt">&lt;/body&gt;</span>
+    <span class="nt">&lt;/html&gt;</span></code></pre></div>
+
+<h2 id="performance-and-security-concern">Performance and security concern</h2>
+
+<p>This is a simple example of using custom tags and filters. However, keep in mind that:
+    - you would want to autoescape the string object (e.g. TextField, CharField,…), especially when they come from users
+    - don’t be too reliant on template tags/filters. It slows down site performance. Beside, it’s good to keep the logic outside of templates</p>
+
+<h2 id="source">Source:</h2>
+
+<ul>
+  <li><a href="https://docs.djangoproject.com/en/dev/howto/custom-template-tags/">Custom template tags/filters documentation</a></li>
+  <li><a href="https://docs.djangoproject.com/en/1.10/ref/templates/builtins/">Built-in template tags/filters documentation</a></li>
+</ul>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Duc Nguyen</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Duc Nguyen</li>
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">A blog documenting the winding journey to be good.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
