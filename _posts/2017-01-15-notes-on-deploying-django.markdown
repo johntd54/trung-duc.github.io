@@ -71,7 +71,7 @@ WSGISocketPrefix /var/run/wsgi
         * the path to your virtual environment (so that WSGI can run the code with the correct Python version)
     + WSGIProcessGroup: same name as the daemonprocess above
     + WSGIScriptAlias: anything from / (the root domain) will be handled by wsgi.py
-- Symlink `abc.conf` to sites-enabled
+- Symlink `abc.conf` to sites-enabled (`sudo a2ensite [conf_name]`)
 
 7. Handle permission issues
 - Give Apache access and group ownership to sqlite database
@@ -112,6 +112,10 @@ or
 
 `(13)Permission denied: [client ::1:37840] mod_wsgi (pid=20690): Unable to connect to WSGI daemon process 'cpp_test' on '/var/run/apache2/wsgi.[...].sock' as user with uid=[...].`
 
+or
+
+`(2)No such file or directory: mod_wsgi (pid=22808): Couldn't bind unix domain socket '/etc/apache2/run/wsgi.[...].sock'`
+
 Refer [here](http://modwsgi.readthedocs.io/en/develop/user-guides/configuration-issues.html). But the main point is Apache process communicates with WSGI daemon process through UNIX sockets (basically files on disk). If the folder contains those files don't have read/write permission, communication halts. E.g. in the example above Apache cannot read/write on /var/run/apache2. As a result, we need to assign a different location, by:
 
 `WSGISocketPrefix run/wsgi`
@@ -142,6 +146,22 @@ make install
 {% endhighlight %}
 
 Depending on the Apache version that apache2-dev library should be installed - `sudo apt-get install apache2-dev`. Otherwise, during ./configure, something like this might appear `apxs: command not found`
+
+Then mod_wsgi should be found in these directories:
+
+{% highlight %}
+/etc
+/etc/apache2
+/etc/apache2/mods-available
+/etc/apache2/mods-available/wsgi.conf
+/etc/apache2/mods-available/wsgi.load
+/usr
+/usr/lib
+/usr/lib/apache2
+/usr/lib/apache2/modules
+/usr/lib/apache2/modules/mod_wsgi.so-3.4
+/usr/lib/apache2/modules/mod_wsgi.so
+{% endhighlight %}
 
 ## Conclusion
 
